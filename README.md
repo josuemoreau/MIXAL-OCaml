@@ -1,4 +1,4 @@
 MIXAL-OCaml
 
-Interpréteur OCaml (non terminé) du langage assembleur MIX décrit dans
-The Art of Computer Programming, Vol. 1 - Fundamental Algorithms de Donald Knuth.
+Interpréteur OCaml (non terminé) du langage assembleur MIX décrit dans le premier
+volume (Fundamental Algorithms) de The Art Of Computer Programming, Donald Knuth.
