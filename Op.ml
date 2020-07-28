@@ -201,3 +201,70 @@ let op_to_codes i =
   | CMP5 -> params 61 AnyLR lr05
   | CMP6 -> params 62 AnyLR lr05
   | CMPX -> params 63 AnyLR lr05
+
+exception UnknownOperator of string
+
+let string_to_op s =
+  match String.uppercase_ascii s with
+  | "LDA" -> LDA | "LDX" -> LDX
+  | "LD1" -> LD1 | "LD2" -> LD2 | "LD3" -> LD3
+  | "LD4" -> LD4 | "LD5" -> LD5 | "LD6" -> LD6
+  | "LDAN" -> LDAN | "LDXN" -> LDXN
+  | "LD1N" -> LD1N | "LD2N" -> LD2N | "LD3N" -> LD3N
+  | "LD4N" -> LD4N | "LD5N" -> LD5N | "LD6N" -> LD6N
+  (* Stockage registre -> mémoire *)
+  | "STA" -> STA | "STX" -> STX
+  | "ST1" -> ST1 | "ST2" -> ST2 | "ST3" -> ST3
+  | "ST4" -> ST4 | "ST5" -> ST5 | "ST6" -> ST6
+  | "STJ" -> STJ | "STZ" -> STZ
+  (* Opérateurs arithmétiques *)
+  | "ADD" -> ADD | "SUB" -> SUB | "MUL" -> MUL | "DIV" -> DIV
+  (* Opérateurs de transfert d'adresses *)
+  | "ENTA" -> ENTA | "ENTX" -> ENTX
+  | "ENT1" -> ENT1 | "ENT2" -> ENT2 | "ENT3" -> ENT3
+  | "ENT4" -> ENT4 | "ENT5" -> ENT5 | "ENT6" -> ENT6
+  | "ENNA" -> ENNA | "ENNX" -> ENNX
+  | "ENN1" -> ENN1 | "ENN2" -> ENN2 | "ENN3" -> ENN3
+  | "ENN4" -> ENN4 | "ENN5" -> ENN5 | "ENN6" -> ENN6
+  | "INCA" -> INCA | "INCX" -> INCX
+  | "INC1" -> INC1 | "INC2" -> INC2 | "INC3" -> INC3
+  | "INC4" -> INC4 | "INC5" -> INC5 | "INC6" -> INC6
+  | "DECA" -> DECA | "DECX" -> DECX
+  | "DEC1" -> DEC1 | "DEC2" -> DEC2 | "DEC3" -> DEC3
+  | "DEC4" -> DEC4 | "DEC5" -> DEC5 | "DEC6" -> DEC6
+  (* Opérateurs de comparaison *)
+  | "CMPA" -> CMPA | "CMPX" -> CMPX
+  | "CMP1" -> CMP1 | "CMP2" -> CMP2 | "CMP3" -> CMP3
+  | "CMP4" -> CMP4 | "CMP5" -> CMP5 | "CMP6" -> CMP6
+  (* Opérateurs de saut *)
+  | "JMP" -> JMP | "JSJ" -> JSJ | "JOV" -> JOV | "JNOV" -> JNOV
+  | "JL" -> JL | "JE" -> JE | "JG" -> JG
+  | "JGE" -> JGE | "JNE" -> JNE | "JLE" -> JLE
+  | "JAN" -> JAN | "JAZ" -> JAZ | "JAP" -> JAP
+  | "JANN" -> JANN | "JANZ" -> JANZ | "JANP" -> JANP
+  | "JXN" -> JXN | "JXZ" -> JXZ | "JXP" -> JXP
+  | "JXNN" -> JXNN | "JXNZ" -> JXNZ | "JXNP" -> JXNP
+  | "J1N" -> J1N | "J1Z" -> J1Z | "J1P" -> J1P
+  | "J1NN" -> J1NN | "J1NZ" -> J1NZ | "J1NP" -> J1NP
+  | "J2N" -> J2N | "J2Z" -> J2Z | "J2P" -> J2P
+  | "J2NN" -> J2NN | "J2NZ" -> J2NZ | "J2NP" -> J2NP
+  | "J3N" -> J3N | "J3Z" -> J3Z | "J3P" -> J3P
+  | "J3NN" -> J3NN | "J3NZ" -> J3NZ | "J3NP" -> J3NP
+  | "J4N" -> J4N | "J4Z" -> J4Z | "J4P" -> J4P
+  | "J4NN" -> J4NN | "J4NZ" -> J4NZ | "J4NP" -> J4NP
+  | "J5N" -> J5N | "J5Z" -> J5Z | "J5P" -> J5P
+  | "J5NN" -> J5NN | "J5NZ" -> J5NZ | "J5NP" -> J5NP
+  | "J6N" -> J6N | "J6Z" -> J6Z | "J6P" -> J6P
+  | "J6NN" -> J6NN | "J6NZ" -> J6NZ | "J6NP" -> J6NP
+  (* Opérateurs de décalage *)
+  | "SLA" -> SLA | "SRA" -> SRA
+  | "SLAX" -> SLAX | "SRAX" -> SRAX
+  | "SLC" -> SLC | "SRC" -> SRC
+  (* Opérateurs divers *)
+  | "MOVE" -> MOVE | "NOP" -> NOP | "HLT" -> HLT
+  (* Opérateurs d'entrée-sortie *)
+  | "IN" -> IN | "OUT" -> OUT | "IOC" -> IOC
+  | "JRED" -> JRED | "JBUS" -> JBUS
+  (* Opérateurs de conversion *)
+  | "NUM" -> NUM | "CHAR" -> CHAR
+  | _ -> raise (UnknownOperator s)

@@ -9,3 +9,4 @@ type instr = {
 }
 
 val to_word : op -> int -> int option -> int option -> int -> word
+val string_to_op : string -> op
