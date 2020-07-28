@@ -29,3 +29,10 @@ let set_sub_rightmost w1 w2 l r =
   for i = max 1 l to r do
     w1.bytes.(d + i - 1) <- w2.bytes.(i - 1)
   done
+
+let print w =
+  Format.printf "%s " (if get_sign w then "+" else "-");
+  for i = 1 to 5 do
+    Format.printf "%d " (get_byte w i)
+  done;
+  Format.printf "@."

@@ -22,11 +22,11 @@ let addr_to_bytes addr =
 let to_word op addr i f line =
   let op_spec = op_to_codes op in
   let w = empty in
-  let bytes = addr_to_bytes addr in
+  let bytes = addr_to_bytes (abs addr) in
   if List.length bytes > 2 then raise (AddressSpecifiedTooLarge line);
   set_sign w (addr >= 0);
-  set_byte w 1 (List.nth bytes 1);
   set_byte w 2 (List.nth bytes 0);
+  if List.length bytes >= 2 then set_byte w 1 (List.nth bytes 1);
   begin match i with
     | None -> () (* pas besoin de définir le byte, il est déjà initialisé à 0 *)
     | Some(i) -> set_byte w 3 i end;

@@ -12,3 +12,5 @@ val set_byte : word -> int -> byte -> unit
 
 val set_sub : word -> word -> int -> int -> unit
 val set_sub_rightmost : word -> word -> int -> int -> unit
+
+val print : word -> unit
