@@ -25,7 +25,7 @@ let parse1 filename =
     let tmp = ref "" in
     for i = 0 to String.length line - 1 do
       if line.[i] = ' ' then
-        
+
     done
   with e ->
     close_in ic
