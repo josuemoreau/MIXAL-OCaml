@@ -268,3 +268,6 @@ let string_to_op s =
   (* Opérateurs de conversion *)
   | "NUM" -> NUM | "CHAR" -> CHAR
   | _ -> raise (UnknownOperator s)
+
+let is_op s =
+  try ignore (string_to_op s); true with UnknownOperator s -> false
