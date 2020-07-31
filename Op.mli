@@ -50,3 +50,4 @@ val is_fspec02_valid : int -> bool
 val op_to_codes : op -> instructions_params
 val string_to_op : string -> op
 val is_op : string -> bool
+val op_to_string : op -> string
