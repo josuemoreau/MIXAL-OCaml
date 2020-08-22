@@ -7,10 +7,20 @@
     | Tident of string
     | TassKeyword of string
     | TmixKeyword of string
-    | Tsymbol of char
+    | Tsymbol of string
     | Tconst of int
     | Talf of string
     | Teof
+
+  type instrpos = INSTR | ADDR | INDEX | FSPEC | END
+
+  type state = {
+      mutable instrpos  : instrpos;
+      mutable lastnb    : int option;
+      mutable lastbinop : string option
+  }
+
+  module StringMap = Map.Make(String)
 
   let ass_keywords = StringSet.of_list ["equ"; "orig"; "con"; "alf"; "end"]
   let mix_keywords = StringSet.of_list [
@@ -49,38 +59,129 @@
     | Tident s      -> printf "IDENT(%s)" s
     | TassKeyword s -> printf "ASS(%s)" s
     | TmixKeyword s -> printf "MIX(%s)" s
-    | Tsymbol c -> printf "SYM(%c)" c
+    | Tsymbol s -> printf "SYM(%s)" s
     | Tconst n -> printf "CONST(%d)" n
     | Talf s   -> printf "ALF(%s)" s
     | Teof     -> ()
 
   let print_token = printf "%a " pp
+
+  let rec base f b n =
+    if n < b then f n
+    else begin
+      f (n / b);
+      base f b (n mod b)
+    end
+
+  let change_instrpos state pos =
+    begin match state.lastnb with
+    | None -> ()
+    | Some nb -> printf "--> %d" nb
+    end;
+    state.instrpos  <- pos;
+    state.lastnb    <- None;
+    state.lastbinop <- None
+
+  let reset_state state =
+    change_instrpos state INSTR
+
+  let compute op nb1 nb2 =
+    match op with
+    | "+" -> nb1 + nb2
+    | "-" -> nb1 - nb2
+    | "*" -> nb1 * nb2
+    | "/" -> nb1 / nb2
+    | "//" -> (nb1 * Word.word_max) / nb2
+    | ":" -> ((nb1 * 8) mod Word.word_max) + nb2
+    | _ -> failwith (op ^ " n'est pas un opérateur binaire.")
+
 }
 
 let letters = ['a'-'z' 'A'-'Z']
 let digits  = ['0'-'9']
 let number  = digits+
 let whitespaces = [' ' '\t' '\n']
-let symbols = ['+' '-' '*' '/' '=' ',' '(' ')' ':']
+let symbols = "+"|"-"|"*"|"/"|"//"|"="|","|"("|")"|":"
 
-rule assemble = parse
-  | whitespaces* '*' [^'\n']* { assemble_rec lexbuf }
-  | _ { assemble_rec lexbuf }
-and assemble_rec = parse
-  | '\n' whitespaces* '*' [^'\n']* '\n' { assemble_rec lexbuf }
-  | whitespaces* '\n' whitespaces* { printf "\n"; assemble_rec lexbuf }
-  | whitespaces+ { assemble_rec lexbuf }
-  | symbols as c { print_token (Tsymbol c); assemble_rec lexbuf }
-  | ("alf "|"ALF ") ([^'\n']* as s) { print_token (Talf s); assemble_rec lexbuf }
-  | letters (letters|digits)* as s {
+rule assemble state = parse
+  | whitespaces* '*' [^'\n']* { assemble_rec state Word.empty lexbuf }
+  | _ { assemble_rec state Word.empty lexbuf }
+and assemble_rec state word = parse
+  | '\n' whitespaces* '*' [^'\n']* '\n' {
+      reset_state state;
+      assemble_rec state Word.empty lexbuf
+    }
+  | whitespaces* '\n' whitespaces* {
+      reset_state state;
+      printf "\n";
+      assemble_rec state Word.empty lexbuf
+    }
+  | whitespaces+ {
+      (* tous les espaces blancs ne contenant pas de retour à la ligne *)
+      assemble_rec state word lexbuf
+    }
+  | symbols as s {
+      print_token (Tsymbol s);
+      match s with
+      | "+" | "-" | "*" | "/" | "//" | ":" ->
+        state.lastbinop <- Some s; assemble_rec state word lexbuf
+      | "," ->
+        change_instrpos state INDEX; assemble_rec state word lexbuf
+      | "(" ->
+        change_instrpos state FSPEC; assemble_rec state word lexbuf
+      | ")" ->
+        change_instrpos state END; assemble_rec state word lexbuf
+      | "=" ->
+        (* cas à traiter *)
+        assemble_rec state word lexbuf
+      | _ -> assemble_rec state word lexbuf
+    }
+  | ("alf "|"ALF ") ([^'\n']* as s) {
+      print_token (Talf s);
+      (* à traiter, pour l'écriture d'une constante alphanumérique *)
+      assemble_rec state Word.empty lexbuf
+    }
+  | number as n   {
+      let nb = int_of_string n in
+      print_token (Tconst nb);
+      begin match state.lastbinop, state.lastnb with
+        (* constante sans opérateurs *)
+        | None, _ -> state.lastnb <- Some nb
+        (* opérateurs unaires *)
+        | Some "+", None ->
+          state.lastnb <- Some(nb);
+          state.lastbinop <- None
+        | Some "-", None ->
+          state.lastnb <- Some (- nb);
+          state.lastbinop <- None;
+        | Some op, None -> failwith (op ^ " n'est pas un opérateur unaire.")
+        (* opérateurs binaires *)
+        | Some op, Some nb' ->
+          state.lastnb <- Some (compute op nb' nb);
+          state.lastbinop <- None
+      end;
+      assemble_rec state word lexbuf
+    }
+  | (letters|digits)+ as s {
       let s' = String.lowercase_ascii s in
       print_token (if StringSet.mem s' ass_keywords then TassKeyword s'
                    else if StringSet.mem s' mix_keywords then TmixKeyword s'
                    else Tident s');
-      assemble_rec lexbuf }
-  | number as n   { print_token (Tconst (int_of_string n)); assemble_rec lexbuf }
+      (* à traiter, lorsque des identifieurs sont présents dans une expression,
+         i.e. lorsque instrpos est autre que INSTR *)
+      (* si instrpos = INSTR, alors si le mot reconnu est un mot clé, c'est une
+         instruction, sinon c'est la définition d'un label à cette position *)
+      (* à traiter, pour l'affectation des zones du mot en fonction de
+         l'instruction *)
+      assemble_rec state Word.empty lexbuf
+    }
   | _ { failwith "lexical error" }
   | eof { print_token (Teof) }
 {
-  let () = assemble (Lexing.from_channel (open_in filename))
+  let state = {
+      instrpos  = ADDR;
+      lastnb    = None;
+      lastbinop = None
+    }
+  let () = assemble state (Lexing.from_channel (open_in filename))
 }

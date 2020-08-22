@@ -2,15 +2,22 @@ EXEC := assembler
 
 MLL := assembler.mll
 ML  := assembler.ml
-OBJ := assembler.cmx
+OBJ := Word.cmx assembler.cmx
 
-%.ml: %.mll
+.PRECIOUS: %.cmi
+.DEFAULT_GOAL := $(EXEC)
+
+assembler.cmx: $(MLL)
 	ocamllex $^
+	ocamlopt $(ML) -c
 
-%.cmx: %.ml
+%.cmi: %.mli
 	ocamlopt $^ -c
 
-$(EXEC): $(MLL) $(ML) $(OBJ)
+%.cmx: %.ml %.cmi
+	ocamlopt $< -c
+
+$(EXEC): $(OBJ)
 	ocamlopt $(OBJ) -o $(EXEC)
 
 all: $(EXEC)
