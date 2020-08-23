@@ -3,6 +3,7 @@
   open Format
 
   module StringSet = Set.Make(String)
+  module StringMap = Map.Make(String)
 
   type tokens =
     | Tident of string
@@ -16,12 +17,14 @@
   type instrpos = INSTR | ADDR | INDEX | FSPEC | END
 
   type state = {
-      mutable instrpos  : instrpos;
-      mutable lastnb    : int option;
-      mutable lastbinop : string option
+      mutable instrpos   : instrpos;
+      mutable lastnb     : int option;
+      mutable lastbinop  : string option;
+      mutable bindings   : int StringMap.t;
+      mutable loccounter : int;
+      mutable lastassinstr  : string option;
+      mutable lastsymdef : string option
   }
-
-  module StringMap = Map.Make(String)
 
   let ass_keywords = StringSet.of_list ["equ"; "orig"; "con"; "alf"; "end"]
   let mix_keywords = StringSet.of_list [
@@ -83,8 +86,24 @@
     state.lastnb    <- None;
     state.lastbinop <- None
 
-  let reset_state state =
-    change_instrpos state INSTR
+  let reset_instr state =
+    begin match state.lastassinstr, state.lastsymdef with
+      | Some "equ", Some sym ->
+        begin match state.lastnb with
+          | None -> failwith "Valeur de l'équivalence non définie."
+          | Some nb -> state.bindings <- StringMap.add sym nb state.bindings
+        end
+      | Some "equ", None ->
+          failwith "Impossible de définir une équivalence à un symbole sans nom."
+      | None, None
+      | Some _, None -> ()
+      | None, Some sym
+      | Some _, Some sym ->
+          state.bindings <- StringMap.add sym state.loccounter state.bindings
+    end;
+    change_instrpos state INSTR;
+    state.lastassinstr <- None;
+    state.lastsymdef <- None
 
   let compute op nb1 nb2 =
     match op with
@@ -96,8 +115,25 @@
     | ":" -> ((nb1 * 8) mod Word.word_max) + nb2
     | _ -> failwith (op ^ " n'est pas un opérateur binaire.")
 
+  let computation_step state nb =
+    match state.lastbinop, state.lastnb with
+    (* constante sans opérateurs *)
+    | None, _ -> state.lastnb <- Some nb
+    (* opérateurs unaires *)
+    | Some "+", None ->
+      state.lastnb <- Some(nb);
+      state.lastbinop <- None
+    | Some "-", None ->
+      state.lastnb <- Some (- nb);
+      state.lastbinop <- None;
+    | Some op, None -> failwith (op ^ " n'est pas un opérateur unaire.")
+    (* opérateurs binaires *)
+    | Some op, Some nb' ->
+      state.lastnb <- Some (compute op nb' nb);
+      state.lastbinop <- None
 
-# 101 "assembler.ml"
+
+# 137 "assembler.ml"
 let __ocaml_lex_tables = {
   Lexing.lex_base =
    "\000\000\254\255\001\000\003\000\005\000\008\000\247\255\248\255\
@@ -375,14 +411,14 @@ let rec assemble state lexbuf =
 and __ocaml_lex_assemble_rec state lexbuf __ocaml_lex_state =
   match Lexing.engine __ocaml_lex_tables __ocaml_lex_state lexbuf with
       | 0 ->
-# 107 "assembler.mll"
+# 143 "assembler.mll"
                               ( assemble_rec state Word.empty lexbuf )
-# 381 "assembler.ml"
+# 417 "assembler.ml"
 
   | 1 ->
-# 108 "assembler.mll"
+# 144 "assembler.mll"
       ( assemble_rec state Word.empty lexbuf )
-# 386 "assembler.ml"
+# 422 "assembler.ml"
 
   | __ocaml_lex_state -> lexbuf.Lexing.refill_buff lexbuf;
       __ocaml_lex_assemble_rec state lexbuf __ocaml_lex_state
@@ -392,37 +428,37 @@ and assemble_rec state word lexbuf =
 and __ocaml_lex_assemble_rec_rec state word lexbuf __ocaml_lex_state =
   match Lexing.engine __ocaml_lex_tables __ocaml_lex_state lexbuf with
       | 0 ->
-# 110 "assembler.mll"
+# 146 "assembler.mll"
                                         (
-      reset_state state;
+      reset_instr state;
       assemble_rec state Word.empty lexbuf
     )
-# 401 "assembler.ml"
+# 437 "assembler.ml"
 
   | 1 ->
-# 114 "assembler.mll"
+# 150 "assembler.mll"
                                    (
-      reset_state state;
+      reset_instr state;
       printf "\n";
       assemble_rec state Word.empty lexbuf
     )
-# 410 "assembler.ml"
+# 446 "assembler.ml"
 
   | 2 ->
-# 119 "assembler.mll"
+# 155 "assembler.mll"
                  (
       (* tous les espaces blancs ne contenant pas de retour à la ligne *)
       assemble_rec state word lexbuf
     )
-# 418 "assembler.ml"
+# 454 "assembler.ml"
 
   | 3 ->
 let
-# 123 "assembler.mll"
+# 159 "assembler.mll"
                s
-# 424 "assembler.ml"
+# 460 "assembler.ml"
 = Lexing.sub_lexeme lexbuf lexbuf.Lexing.lex_start_pos lexbuf.Lexing.lex_curr_pos in
-# 123 "assembler.mll"
+# 159 "assembler.mll"
                  (
       print_token (Tsymbol s);
       match s with
@@ -439,96 +475,99 @@ let
         assemble_rec state word lexbuf
       | _ -> assemble_rec state word lexbuf
     )
-# 443 "assembler.ml"
+# 479 "assembler.ml"
 
   | 4 ->
 let
-# 139 "assembler.mll"
+# 175 "assembler.mll"
                                  s
-# 449 "assembler.ml"
+# 485 "assembler.ml"
 = Lexing.sub_lexeme lexbuf (lexbuf.Lexing.lex_start_pos + 4) lexbuf.Lexing.lex_curr_pos in
-# 139 "assembler.mll"
+# 175 "assembler.mll"
                                     (
       print_token (Talf s);
       (* à traiter, pour l'écriture d'une constante alphanumérique *)
       assemble_rec state Word.empty lexbuf
     )
-# 457 "assembler.ml"
+# 493 "assembler.ml"
 
   | 5 ->
 let
-# 144 "assembler.mll"
+# 180 "assembler.mll"
               n
-# 463 "assembler.ml"
+# 499 "assembler.ml"
 = Lexing.sub_lexeme lexbuf lexbuf.Lexing.lex_start_pos lexbuf.Lexing.lex_curr_pos in
-# 144 "assembler.mll"
+# 180 "assembler.mll"
                   (
       let nb = int_of_string n in
       print_token (Tconst nb);
-      begin match state.lastbinop, state.lastnb with
-        (* constante sans opérateurs *)
-        | None, _ -> state.lastnb <- Some nb
-        (* opérateurs unaires *)
-        | Some "+", None ->
-          state.lastnb <- Some(nb);
-          state.lastbinop <- None
-        | Some "-", None ->
-          state.lastnb <- Some (- nb);
-          state.lastbinop <- None;
-        | Some op, None -> failwith (op ^ " n'est pas un opérateur unaire.")
-        (* opérateurs binaires *)
-        | Some op, Some nb' ->
-          state.lastnb <- Some (compute op nb' nb);
-          state.lastbinop <- None
-      end;
+      computation_step state nb;
       assemble_rec state word lexbuf
     )
-# 487 "assembler.ml"
+# 508 "assembler.ml"
 
   | 6 ->
 let
-# 165 "assembler.mll"
+# 186 "assembler.mll"
                          s
-# 493 "assembler.ml"
+# 514 "assembler.ml"
 = Lexing.sub_lexeme lexbuf lexbuf.Lexing.lex_start_pos lexbuf.Lexing.lex_curr_pos in
-# 165 "assembler.mll"
+# 186 "assembler.mll"
                            (
       let s' = String.lowercase_ascii s in
       print_token (if StringSet.mem s' ass_keywords then TassKeyword s'
                    else if StringSet.mem s' mix_keywords then TmixKeyword s'
                    else Tident s');
-      (* à traiter, lorsque des identifieurs sont présents dans une expression,
-         i.e. lorsque instrpos est autre que INSTR *)
-      (* si instrpos = INSTR, alors si le mot reconnu est un mot clé, c'est une
-         instruction, sinon c'est la définition d'un label à cette position *)
+      begin match state.instrpos with
+      | INSTR when StringSet.mem s' ass_keywords ->
+            if state.lastassinstr = None then state.lastassinstr <- Some s'
+            else failwith (s' ^ " est un mot clé, il ne peut pas être un symbole.");
+            change_instrpos state ADDR
+      | INSTR when StringSet.mem s' mix_keywords ->
+            (* remplissage du word avec les codes spécifiques à l'instruction *)
+            change_instrpos state ADDR
+      | INSTR ->
+        printf " (DEF SYMBOLE %s) " s';
+        if state.lastsymdef = None then state.lastsymdef <- Some s'
+                 else failwith (s' ^ " n'est pas une instruction.")
+      | ADDR | INDEX | FSPEC ->
+        begin try
+          computation_step state (StringMap.find s' state.bindings)
+        with Not_found -> failwith (s' ^ " n'est pas un symbole défini.") end
+      | END   -> ()
       (* à traiter, pour l'affectation des zones du mot en fonction de
          l'instruction *)
+      end;
       assemble_rec state Word.empty lexbuf
     )
-# 509 "assembler.ml"
+# 544 "assembler.ml"
 
   | 7 ->
-# 178 "assembler.mll"
+# 213 "assembler.mll"
       ( failwith "lexical error" )
-# 514 "assembler.ml"
+# 549 "assembler.ml"
 
   | 8 ->
-# 179 "assembler.mll"
+# 214 "assembler.mll"
         ( print_token (Teof) )
-# 519 "assembler.ml"
+# 554 "assembler.ml"
 
   | __ocaml_lex_state -> lexbuf.Lexing.refill_buff lexbuf;
       __ocaml_lex_assemble_rec_rec state word lexbuf __ocaml_lex_state
 
 ;;
 
-# 180 "assembler.mll"
+# 215 "assembler.mll"
  
   let state = {
-      instrpos  = ADDR;
-      lastnb    = None;
-      lastbinop = None
+      instrpos   = ADDR;
+      lastnb     = None;
+      lastbinop  = None;
+      bindings   = StringMap.empty;
+      loccounter = 0;
+      lastassinstr  = None;
+      lastsymdef = None
     }
   let () = assemble state (Lexing.from_channel (open_in filename))
 
-# 535 "assembler.ml"
+# 574 "assembler.ml"
