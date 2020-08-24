@@ -1,0 +1,171 @@
+
+** Conflict (shift/reduce/reduce) in state 33.
+** Tokens involved: STR MIXOP LPAR EOF COMMA ASSOP ALFOP
+** The following explanations concentrate on token LPAR.
+** This state is reached from main after reading:
+
+MIXOP expr 
+
+** The derivations that appear below have the following common factor:
+** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
+
+main 
+instrs EOF 
+line 
+instr 
+(?)
+
+** In state 33, looking ahead at LPAR, reducing production
+** apart -> expr 
+** is permitted because of the following sub-derivation:
+
+MIXOP apart ipart fpart // lookahead token appears because ipart can vanish and fpart can begin with LPAR
+      expr . 
+
+** In state 33, looking ahead at LPAR, reducing production
+** epsilon -> 
+** is permitted because of the following sub-derivation:
+
+MIXOP apart ipart fpart // lookahead token appears because ipart can vanish and fpart can begin with LPAR
+      wpart // lookahead token is inherited
+      awpart // lookahead token is inherited
+      expr fpart // lookahead token is inherited
+           epsilon // lookahead token is inherited
+           . 
+
+** In state 33, looking ahead at LPAR, shifting is permitted
+** because of the following sub-derivation:
+
+MIXOP apart ipart fpart 
+      wpart 
+      awpart 
+      expr fpart 
+           . LPAR expr RPAR 
+
+** Conflict (shift/reduce) in state 13.
+** Token involved: LPAR
+** This state is reached from main after reading:
+
+MIXOP wpart COMMA expr 
+
+** The derivations that appear below have the following common factor:
+** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
+
+main 
+instrs EOF 
+line 
+instr 
+(?)
+
+** In state 13, looking ahead at LPAR, reducing production
+** epsilon -> 
+** is permitted because of the following sub-derivation:
+
+MIXOP apart ipart fpart // lookahead token appears because ipart can vanish and fpart can begin with LPAR
+      wpart // lookahead token is inherited
+      wpart COMMA awpart // lookahead token is inherited
+                  expr fpart // lookahead token is inherited
+                       epsilon // lookahead token is inherited
+                       . 
+
+** In state 13, looking ahead at LPAR, shifting is permitted
+** because of the following sub-derivation:
+
+MIXOP apart ipart fpart 
+      wpart 
+      wpart COMMA awpart 
+                  expr fpart 
+                       . LPAR expr RPAR 
+
+** Conflict (shift/reduce) in state 11.
+** Token involved: COMMA
+** This state is reached from main after reading:
+
+MIXOP wpart 
+
+** The derivations that appear below have the following common factor:
+** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
+
+main 
+instrs EOF 
+line 
+instr 
+(?)
+
+** In state 11, looking ahead at COMMA, reducing production
+** apart -> wpart 
+** is permitted because of the following sub-derivation:
+
+MIXOP apart ipart fpart // lookahead token appears because ipart can begin with COMMA
+      wpart . 
+
+** In state 11, looking ahead at COMMA, shifting is permitted
+** because of the following sub-derivation:
+
+MIXOP apart ipart fpart 
+      wpart 
+      wpart . COMMA awpart 
+
+** Conflict (reduce/reduce) in state 3.
+** Tokens involved: STR MIXOP LPAR EOF COMMA ASSOP ALFOP
+** The following explanations concentrate on token STR.
+** This state is reached from main after reading:
+
+MIXOP STR 
+
+** The derivations that appear below have the following common factor:
+** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
+
+main 
+instrs EOF 
+line instrs // lookahead token appears because instrs can begin with STR
+instr // lookahead token is inherited
+MIXOP apart ipart fpart // lookahead token is inherited because ipart fpart can vanish
+      (?)
+
+** In state 3, looking ahead at STR, reducing production
+** aexpr -> STR 
+** is permitted because of the following sub-derivation:
+
+expr // lookahead token is inherited
+aexpr // lookahead token is inherited
+STR . 
+
+** In state 3, looking ahead at STR, reducing production
+** apart -> STR 
+** is permitted because of the following sub-derivation:
+
+STR . 
+
+** Conflict (shift/reduce) in state 2.
+** Token involved: STR
+** This state is reached from main after reading:
+
+MIXOP 
+
+** The derivations that appear below have the following common factor:
+** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
+
+main 
+instrs EOF 
+(?)
+
+** In state 2, looking ahead at STR, shifting is permitted
+** because of the following sub-derivation:
+
+line 
+instr 
+MIXOP apart ipart fpart 
+      expr 
+      aexpr 
+      . STR 
+
+** In state 2, looking ahead at STR, reducing production
+** epsilon -> 
+** is permitted because of the following sub-derivation:
+
+line instrs // lookahead token appears because instrs can begin with STR
+instr // lookahead token is inherited
+MIXOP apart ipart fpart // lookahead token is inherited because ipart fpart can vanish
+      epsilon // lookahead token is inherited
+      . 
