@@ -449,7 +449,7 @@ and _menhir_goto_instrs : _menhir_env -> 'ttv_tail -> _menhir_state -> 'tv_instr
         let _2 = () in
         let _v : 'tv_instrs = 
 # 18 "parser.mly"
-                                ( Ast.Instrs (l, is) )
+                                ( Format.printf "@[%a@]@." Ast.pp_line l; Ast.Instrs (l, is) )
 # 454 "parser.ml"
          in
         _menhir_goto_instrs _menhir_env _menhir_stack _menhir_s _v) : 'freshtv154)) : 'freshtv156)
@@ -860,7 +860,7 @@ and _menhir_goto_line : _menhir_env -> 'ttv_tail -> _menhir_state -> 'tv_line ->
         ((let (_menhir_stack, _menhir_s, (l : 'tv_line)) = _menhir_stack in
         let _v : 'tv_instrs = 
 # 17 "parser.mly"
-                        ( Ast.Line l         )
+                        ( Format.printf "@[%a@]@." Ast.pp_line l; Ast.Line l         )
 # 865 "parser.ml"
          in
         _menhir_goto_instrs _menhir_env _menhir_stack _menhir_s _v) : 'freshtv88)

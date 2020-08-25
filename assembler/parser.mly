@@ -14,8 +14,8 @@ main:
 ;
 
 instrs:
-| l = line              { Ast.Line l         }
-| l = line; EINSTR; is = instrs { Ast.Instrs (l, is) }
+| l = line              { Format.printf "@[%a@]@." Ast.pp_line l; Ast.Line l         }
+| l = line; EINSTR; is = instrs { Format.printf "@[%a@]@." Ast.pp_line l; Ast.Instrs (l, is) }
 ;
 
 line:

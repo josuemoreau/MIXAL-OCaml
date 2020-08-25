@@ -49,20 +49,19 @@ let whitespaces = [' ' '\t' '\n']
 let symbols = "+"|"-"|"*"|"/"|"//"|"="|","|"("|")"|":"
 
 rule lexer = parse
-  | whitespaces* '*' [^'\n']* { lexer_rec lexbuf }
-  | _ { lexer_rec lexbuf }
-and lexer_rec = parse
-  | '\n' whitespaces* '*' [^'\n']* '\n' {
-      EINSTR
+  | whitespaces* '*' [^'\n']* '\n' {
+      (* printf "EINSTR@.";  *)Lexing.new_line lexbuf; EINSTR
     }
   | whitespaces* '\n' whitespaces* {
-      EINSTR
+      (* printf "EINSTR@.";  *)Lexing.new_line lexbuf; EINSTR
     }
   | whitespaces+ {
       (* tous les espaces blancs ne contenant pas de retour à la ligne *)
-      lexer_rec lexbuf
+      (* printf "DES ESPACES !@."; *)
+      lexer lexbuf
     }
   | symbols as s {
+      (* printf "SYM(%s) " s; *)
       match s with
       | "+" -> PLUS
       | "-" -> MINUS
@@ -76,19 +75,21 @@ and lexer_rec = parse
       | "=" -> EQUAL
       | _ -> failwith ("Symbol inconnu : " ^ s)
     }
-  | ("alf "|"ALF ") ([^'\n']* as s) { ALFOP }
+  | ("alf "|"ALF ") (* ([^'\n']* as s) *) { (* printf "alf "; *) ALFOP }
   | number as n   {
+      (* printf "NUM(%s) " n; *)
       let nb = int_of_string n in
       INT nb
     }
   | (letters|digits)+ as s {
+      (* printf "STR(%s) " s; *)
       let s' = String.lowercase_ascii s in
       if StringSet.mem s' ass_keywords then ASSOP s'
       else if StringSet.mem s' mix_keywords then MIXOP s'
       else STR s'
     }
+  | eof { (* printf "EOF !"; *) EOF }
   | _ { failwith "lexical error" }
-  | eof { EOF }
 {
 
 }
