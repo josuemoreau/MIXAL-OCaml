@@ -1,29 +1,34 @@
 EXEC := assembler
 
-MLL := assembler.mll
-ML  := assembler.ml
-OBJ := Word.cmx assembler.cmx
+OBJ := ast.cmx parser.cmx lexer.cmx
 
 .PRECIOUS: %.cmi
 .DEFAULT_GOAL := $(EXEC)
 
-assembler.cmx: $(MLL)
-	ocamllex $^
-	ocamlopt $(ML) -c
+lexer.ml: lexer.mll
+	ocamllex lexer.mll
 
-%.cmi: %.mli
-	ocamlopt $^ -c
-
-%.cmx: %.ml %.cmi
-	ocamlopt $< -c
+parser.mli parser.ml: parser.mly
+	menhir -v parser.mly
 
 $(EXEC): $(OBJ)
 	ocamlopt $(OBJ) -o $(EXEC)
 
-all: $(EXEC)
+.SUFFIXES: .ml .mli .cmi .cmx
+
+.mli.cmi:
+	ocamlopt -c $<
+
+.ml.cmx:
+	ocamlopt -c $<
 
 clean:
 	rm *.cmx
 	rm *.o
 	rm *.cmi
 	rm $(EXEC)
+
+depend:
+	ocamldep *.mli *.ml > .depend
+
+include .depend

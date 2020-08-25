@@ -11,7 +11,9 @@ type token =
   | LPAR
   | INT of (int)
   | FSPEC
+  | EQUAL
   | EOF
+  | EINSTR
   | DIVP
   | DIV
   | COMMA
@@ -25,4 +27,4 @@ exception Error
 
 (* The monolithic API. *)
 
-val main: (Lexing.lexbuf -> token) -> Lexing.lexbuf -> (ast)
+val main: (Lexing.lexbuf -> token) -> Lexing.lexbuf -> (Ast.ast)
