@@ -686,7 +686,7 @@ and _menhir_goto_aexpr : _menhir_env -> 'ttv_tail -> _menhir_state -> 'tv_aexpr 
         let _1 = () in
         let _v : 'tv_expr = 
 # 62 "parser.mly"
-                               ( Ast.EPos e                   )
+                               ( Ast.EPos e                       )
 # 691 "parser.ml"
          in
         _menhir_goto_expr _menhir_env _menhir_stack _menhir_s _v) : 'freshtv90)) : 'freshtv92)
@@ -703,7 +703,7 @@ and _menhir_goto_aexpr : _menhir_env -> 'ttv_tail -> _menhir_state -> 'tv_aexpr 
         let _1 = () in
         let _v : 'tv_expr = 
 # 63 "parser.mly"
-                               ( Ast.ENeg e                   )
+                               ( Ast.ENeg e                       )
 # 708 "parser.ml"
          in
         _menhir_goto_expr _menhir_env _menhir_stack _menhir_s _v) : 'freshtv94)) : 'freshtv96)
@@ -820,7 +820,7 @@ and _menhir_goto_aexpr : _menhir_env -> 'ttv_tail -> _menhir_state -> 'tv_aexpr 
         let ((e : 'tv_aexpr) : 'tv_aexpr) = _v in
         ((let _v : 'tv_expr = 
 # 61 "parser.mly"
-                               ( Ast.EPos e                   )
+                               ( Ast.EPos e                       )
 # 825 "parser.ml"
          in
         _menhir_goto_expr _menhir_env _menhir_stack _menhir_s _v) : 'freshtv122)) : 'freshtv124)
@@ -864,7 +864,7 @@ and _menhir_goto_line : _menhir_env -> 'ttv_tail -> _menhir_state -> 'tv_line ->
         ((let (_menhir_stack, _menhir_s, (l : 'tv_line)) = _menhir_stack in
         let _v : 'tv_instrs = 
 # 17 "parser.mly"
-                        ( Ast.Line l         )
+                                ( Ast.Line l         )
 # 869 "parser.ml"
          in
         _menhir_goto_instrs _menhir_env _menhir_stack _menhir_s _v) : 'freshtv84)
@@ -1339,7 +1339,7 @@ and _menhir_run45 : _menhir_env -> 'ttv_tail -> _menhir_state -> (
     )) = _v in
     ((let _v : 'tv_instr = 
 # 31 "parser.mly"
-                 ( Ast.AlfInstr { value = s }            )
+                           ( Ast.AlfInstr { value = s }            )
 # 1344 "parser.ml"
      in
     _menhir_goto_instr _menhir_env _menhir_stack _menhir_s _v) : 'freshtv4)
