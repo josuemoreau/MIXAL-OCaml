@@ -28,8 +28,7 @@ setup.log
 # Local OPAM switch
 _opam/
 
-lexer.ml
-
+assembler/assembler
 assembler/lexer.ml
 assembler/parser.ml
 assembler/parser.mli
