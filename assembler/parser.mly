@@ -14,7 +14,7 @@ main:
 ;
 
 instrs:
-| l = line              { Ast.Line l         }
+| l = line                      { Ast.Line l         }
 | l = line; EINSTR; is = instrs { Ast.Instrs (l, is) }
 ;
 
@@ -28,7 +28,7 @@ instr:
     Ast.MixInstr { op = op; addr = addr; index = i; fspec = f }
   }
 | op = ASSOP; addr = wpart { Ast.AssInstr { op = op; addr = addr } }
-| s = ALFOP      { Ast.AlfInstr { value = s }            }
+| s = ALFOP                { Ast.AlfInstr { value = s }            }
 ;
 
 awpart:
@@ -58,9 +58,9 @@ apart:
 ;
 
 expr:
-| e = aexpr                    { Ast.EPos e                   }
-| PLUS; e = aexpr              { Ast.EPos e                   }
-| MINUS; e = aexpr             { Ast.ENeg e                   }
+| e = aexpr                    { Ast.EPos e                       }
+| PLUS; e = aexpr              { Ast.EPos e                       }
+| MINUS; e = aexpr             { Ast.ENeg e                       }
 | e1 = expr; PLUS; e2 = aexpr  { Ast.EBinary (Ast.BAdd, e1, e2)   }
 | e1 = expr; MINUS; e2 = aexpr { Ast.EBinary (Ast.BSub, e1, e2)   }
 | e1 = expr; MUL; e2 = aexpr   { Ast.EBinary (Ast.BMul, e1, e2)   }
