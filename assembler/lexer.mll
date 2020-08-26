@@ -54,20 +54,16 @@ rule lexer = parse
       (* tous les espaces blancs ne contenant pas de retour à la ligne *)
       lexer lexbuf
     }
-  | symbols as s {
-      match s with
-      | "+" -> PLUS
-      | "-" -> MINUS
-      | "*" -> MUL
-      | "/" -> DIV
-      | "//" -> DIVP
-      | ":" -> FSPEC
-      | "," -> COMMA
-      | "(" -> LPAR
-      | ")" -> RPAR
-      | "=" -> EQUAL
-      | _ -> failwith ("Symbol inconnu : " ^ s)
-    }
+  | '+'  { PLUS  }
+  | '-'  { MINUS }
+  | '*'  { MUL   }
+  | "//" { DIVP  }
+  | '/'  { DIV   }
+  | ':'  { FSPEC }
+  | ','  { COMMA }
+  | '('  { LPAR  }
+  | ')'  { RPAR  }
+  | '='  { EQUAL }
   | ("alf "|"ALF ") ([^'\n']* as s) { ALFOP s }
   | number as n   {
       let nb = int_of_string n in
