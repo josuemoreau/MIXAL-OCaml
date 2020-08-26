@@ -1,8 +1,8 @@
 %token PLUS MINUS MUL DIV DIVP FSPEC LPAR RPAR
 %token <string> MIXOP
 %token <string> ASSOP
-%token <string>ALFOP
-%token <string> STR
+%token <string> ALFOP
+%token <string> IDENT
 %token <int> INT
 %token ASTERISK
 %token EQUAL COMMA EINSTR EOF
@@ -14,20 +14,19 @@ main:
 ;
 
 instrs:
-| l = line                      { Ast.Line l         }
-| l = line; EINSTR; is = instrs { Ast.Instrs (l, is) }
+  is = separated_list(EINSTR, line) { is }
 ;
 
 line:
 | i = instr              { Ast.Instr i              }
-| sym = STR; i = instr   { Ast.SymDefInstr (sym, i) }
+| sym = IDENT; i = instr   { Ast.SymDefInstr (sym, i) }
 ;
 
 instr:
 | op = MIXOP; addr = apart; i = ipart; f = fpart {
-    Ast.MixInstr { op = op; addr = addr; index = i; fspec = f }
+    Ast.MixInstr { op = Op.mixop_of_str op; addr = addr; index = i; fspec = f }
   }
-| op = ASSOP; addr = wpart { Ast.AssInstr { op = op; addr = addr } }
+| op = ASSOP; addr = wpart { Ast.AssInstr { op = Op.assop_of_str op; addr = addr } }
 | s = ALFOP                { Ast.AlfInstr { value = s }            }
 ;
 
@@ -41,19 +40,18 @@ wpart:
 ;
 
 fpart:
-| epsilon              { Ast.FEmpty  }
+|                      { Ast.FEmpty  }
 | LPAR; e = expr; RPAR { Ast.FExpr e }
 ;
 
 ipart:
-| epsilon         { Ast.IEmpty  }
+|                 { Ast.IEmpty  }
 | COMMA; e = expr { Ast.IExpr e }
 ;
 
 apart:
-| epsilon                 { Ast.AEmpty     }
+|                         { Ast.AEmpty     }
 | e = expr                { Ast.AExpr e    }
-(* | s = STR                 { AFuture s  } impossible à savoir *)
 | EQUAL; w = wpart; EQUAL { Ast.ALiteral w }
 ;
 
@@ -71,9 +69,6 @@ expr:
 
 aexpr:
 | i = INT     { Ast.ENum i    }
-| sym = STR   { Ast.ESym sym  }
+| sym = IDENT   { Ast.ESym sym  }
 | ASTERISK    { Ast.EAsterisk }
 ;
-
-epsilon:
-    { () }

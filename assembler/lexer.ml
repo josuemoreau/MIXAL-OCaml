@@ -36,13 +36,8 @@
       "incx"; "decx"; "entx"; "ennx";
       "cmpa"; "cmp1"; "cmp2"; "cmp3"; "cmp4"; "cmp5"; "cmp6"; "cmpx"
     ]
-  let special_symbols = StringSet.of_list [
-      "1H"; "1B"; "1F"; "2H"; "2B"; "2F"; "3H"; "3B"; "3F"; "4H"; "4B"; "4F";
-      "5H"; "5B"; "5F"; "6H"; "6B"; "6F"; "7H"; "7B"; "7F"; "8H"; "8B"; "8F";
-      "9H"; "9B"; "9F"; "0H"; "0B"; "0F"
-  ]
 
-# 46 "lexer.ml"
+# 41 "lexer.ml"
 let __ocaml_lex_tables = {
   Lexing.lex_base =
    "\000\000\247\255\248\255\075\000\160\000\235\000\054\001\252\255\
@@ -303,34 +298,34 @@ let rec lexer lexbuf =
 and __ocaml_lex_lexer_rec lexbuf __ocaml_lex_state =
   match Lexing.engine __ocaml_lex_tables __ocaml_lex_state lexbuf with
       | 0 ->
-# 52 "lexer.mll"
+# 47 "lexer.mll"
                                   (
       Lexing.new_line lexbuf; lexer lexbuf
     )
-# 311 "lexer.ml"
+# 306 "lexer.ml"
 
   | 1 ->
-# 55 "lexer.mll"
+# 50 "lexer.mll"
                                    (
       Lexing.new_line lexbuf; EINSTR
     )
-# 318 "lexer.ml"
+# 313 "lexer.ml"
 
   | 2 ->
-# 58 "lexer.mll"
+# 53 "lexer.mll"
                  (
       (* tous les espaces blancs ne contenant pas de retour à la ligne *)
       lexer lexbuf
     )
-# 326 "lexer.ml"
+# 321 "lexer.ml"
 
   | 3 ->
 let
-# 62 "lexer.mll"
+# 57 "lexer.mll"
                s
-# 332 "lexer.ml"
+# 327 "lexer.ml"
 = Lexing.sub_lexeme lexbuf lexbuf.Lexing.lex_start_pos lexbuf.Lexing.lex_curr_pos in
-# 62 "lexer.mll"
+# 57 "lexer.mll"
                  (
       match s with
       | "+" -> PLUS
@@ -345,63 +340,63 @@ let
       | "=" -> EQUAL
       | _ -> failwith ("Symbol inconnu : " ^ s)
     )
-# 349 "lexer.ml"
+# 344 "lexer.ml"
 
   | 4 ->
 let
-# 76 "lexer.mll"
+# 71 "lexer.mll"
                                  s
-# 355 "lexer.ml"
+# 350 "lexer.ml"
 = Lexing.sub_lexeme lexbuf (lexbuf.Lexing.lex_start_pos + 4) lexbuf.Lexing.lex_curr_pos in
-# 76 "lexer.mll"
+# 71 "lexer.mll"
                                     ( ALFOP s )
-# 359 "lexer.ml"
+# 354 "lexer.ml"
 
   | 5 ->
 let
-# 77 "lexer.mll"
+# 72 "lexer.mll"
               n
-# 365 "lexer.ml"
+# 360 "lexer.ml"
 = Lexing.sub_lexeme lexbuf lexbuf.Lexing.lex_start_pos lexbuf.Lexing.lex_curr_pos in
-# 77 "lexer.mll"
+# 72 "lexer.mll"
                   (
       let nb = int_of_string n in
       INT nb
     )
-# 372 "lexer.ml"
+# 367 "lexer.ml"
 
   | 6 ->
 let
-# 81 "lexer.mll"
+# 76 "lexer.mll"
                          s
-# 378 "lexer.ml"
+# 373 "lexer.ml"
 = Lexing.sub_lexeme lexbuf lexbuf.Lexing.lex_start_pos lexbuf.Lexing.lex_curr_pos in
-# 81 "lexer.mll"
+# 76 "lexer.mll"
                            (
       let s' = String.lowercase_ascii s in
       if StringSet.mem s' ass_keywords then ASSOP s'
       else if StringSet.mem s' mix_keywords then MIXOP s'
-      else STR s'
+      else IDENT s'
     )
-# 387 "lexer.ml"
+# 382 "lexer.ml"
 
   | 7 ->
-# 87 "lexer.mll"
+# 82 "lexer.mll"
         ( EOF )
-# 392 "lexer.ml"
+# 387 "lexer.ml"
 
   | 8 ->
-# 88 "lexer.mll"
+# 83 "lexer.mll"
       ( failwith "lexical error" )
-# 397 "lexer.ml"
+# 392 "lexer.ml"
 
   | __ocaml_lex_state -> lexbuf.Lexing.refill_buff lexbuf;
       __ocaml_lex_lexer_rec lexbuf __ocaml_lex_state
 
 ;;
 
-# 89 "lexer.mll"
+# 84 "lexer.mll"
  
 
 
-# 408 "lexer.ml"
+# 403 "lexer.ml"

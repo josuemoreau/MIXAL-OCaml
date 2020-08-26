@@ -35,11 +35,6 @@
       "incx"; "decx"; "entx"; "ennx";
       "cmpa"; "cmp1"; "cmp2"; "cmp3"; "cmp4"; "cmp5"; "cmp6"; "cmpx"
     ]
-  let special_symbols = StringSet.of_list [
-      "1H"; "1B"; "1F"; "2H"; "2B"; "2F"; "3H"; "3B"; "3F"; "4H"; "4B"; "4F";
-      "5H"; "5B"; "5F"; "6H"; "6B"; "6F"; "7H"; "7B"; "7F"; "8H"; "8B"; "8F";
-      "9H"; "9B"; "9F"; "0H"; "0B"; "0F"
-  ]
 }
 
 let letters = ['a'-'z' 'A'-'Z']
@@ -82,7 +77,7 @@ rule lexer = parse
       let s' = String.lowercase_ascii s in
       if StringSet.mem s' ass_keywords then ASSOP s'
       else if StringSet.mem s' mix_keywords then MIXOP s'
-      else STR s'
+      else IDENT s'
     }
   | eof { EOF }
   | _ { failwith "lexical error" }

@@ -2,7 +2,6 @@
 (* The type of tokens. *)
 
 type token = 
-  | STR of (string)
   | RPAR
   | PLUS
   | MUL
@@ -10,6 +9,7 @@ type token =
   | MINUS
   | LPAR
   | INT of (int)
+  | IDENT of (string)
   | FSPEC
   | EQUAL
   | EOF

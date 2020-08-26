@@ -1,4 +1,5 @@
-(* type unop = UPlus | UMinus *)
+open Op
+open Format
 
 type binop = BAdd | BSub | BMul | BDiv | BDivP | BFSpec
 
@@ -7,10 +8,8 @@ type atomicexpr =
   | ESym of string
   | EAsterisk
 type expr =
-  (* | EAtomic of atomicexpr *)
   | EPos of atomicexpr
   | ENeg of atomicexpr
-  (* | EUnary of unop * atomicexpr *)
   | EBinary of binop * expr * atomicexpr
 
 type index = IEmpty | IExpr of expr
@@ -25,23 +24,19 @@ type wval =
 type addr =
   | AEmpty
   | AExpr of expr
-  (* | AFuture of string *)
   | ALiteral of wval
 
 type mix_instr = {
-    (* symdef : string option; *)
-    op     : string;
+    op     : mixop;
     addr   : addr;
     index  : index;
     fspec  : fspec
 }
 type ass_instr = {
-    (* symdef : string option; *)
-    op     : string;
+    op     : assop;
     addr   : wval
 }
 type alf_instr = {
-    (* symdef : string option; *)
     value  : string
 }
 
@@ -54,70 +49,64 @@ type line =
   | SymDefInstr of string * instr
   | Instr of instr
 
-type ast =
-  | Line of line
-  | Instrs of line * ast
-
-open Format
+type ast = line list
 
 let pp_binop f = function
-  | BAdd   -> printf "+"
-  | BSub   -> printf "-"
-  | BMul   -> printf "*"
-  | BDiv   -> printf "/"
-  | BDivP  -> printf "//"
-  | BFSpec -> printf ":"
+  | BAdd   -> fprintf f "+"
+  | BSub   -> fprintf f "-"
+  | BMul   -> fprintf f "*"
+  | BDiv   -> fprintf f "/"
+  | BDivP  -> fprintf f "//"
+  | BFSpec -> fprintf f ":"
 
 let pp_atomicexpr f = function
-  | ENum i    -> printf "%d" i
-  | ESym s    -> printf "%s" s
-  | EAsterisk -> printf "*"
+  | ENum i    -> fprintf f "%d" i
+  | ESym s    -> fprintf f "%s" s
+  | EAsterisk -> fprintf f "*"
 
 let rec pp_expr f = function
-  | EPos a -> printf "%a" pp_atomicexpr a
-  | ENeg a -> printf "-%a" pp_atomicexpr a
-  | EBinary (op, e, a) -> printf "%a %a %a" pp_expr e pp_binop op pp_atomicexpr a
+  | EPos a -> fprintf f "%a" pp_atomicexpr a
+  | ENeg a -> fprintf f "-%a" pp_atomicexpr a
+  | EBinary (op, e, a) -> fprintf f "%a %a %a" pp_expr e pp_binop op pp_atomicexpr a
 
 let pp_index f = function
   | IEmpty -> ()
-  | IExpr e -> printf ", %a" pp_expr e
+  | IExpr e -> fprintf f ", %a" pp_expr e
 
 let pp_fspec f = function
   | FEmpty -> ()
-  | FExpr e -> printf "(%a)" pp_expr e
+  | FExpr e -> fprintf f "(%a)" pp_expr e
 
 let pp_atomicwval f = function
-  | WExpr (e, f) -> printf "%a%a" pp_expr e pp_fspec f
+  | WExpr (e, fs) -> fprintf f "%a%a" pp_expr e pp_fspec fs
 
 let rec pp_wval f = function
-  | WAtomic w -> printf "%a" pp_atomicwval w
-  | WMul (e, w) -> printf "%a, %a" pp_wval e pp_atomicwval w
+  | WAtomic w -> fprintf f "%a" pp_atomicwval w
+  | WMul (e, w) -> fprintf f "%a, %a" pp_wval e pp_atomicwval w
 
 let pp_addr f = function
   | AEmpty -> ()
-  | AExpr e -> printf "%a" pp_expr e
-  | ALiteral w -> printf "=%a=" pp_wval w
+  | AExpr e -> fprintf f "%a" pp_expr e
+  | ALiteral w -> fprintf f "=%a=" pp_wval w
 
 let pp_mixinstr f (i: mix_instr) =
-  printf "%s %a%a%a" i.op pp_addr i.addr pp_index i.index pp_fspec i.fspec
+  fprintf f "%s %a%a%a" (str_of_mixop i.op) pp_addr i.addr pp_index i.index pp_fspec i.fspec
 
 let pp_assinstr f (i: ass_instr) =
-  printf "%s %a" i.op pp_wval i.addr
+  fprintf f "%s %a" (str_of_assop i.op) pp_wval i.addr
 
 let pp_alfinstr f (i: alf_instr) =
-  printf "alf %s" i.value
+  fprintf f "alf %s" i.value
 
 let pp_instr f = function
-  | MixInstr i -> printf "%a" pp_mixinstr i
-  | AssInstr i -> printf "%a" pp_assinstr i
-  | AlfInstr i -> printf "%a" pp_alfinstr i
+  | MixInstr i -> fprintf f "%a" pp_mixinstr i
+  | AssInstr i -> fprintf f "%a" pp_assinstr i
+  | AlfInstr i -> fprintf f "%a" pp_alfinstr i
 
 let pp_line f = function
-  | SymDefInstr (s, i) -> printf "%s %a" s pp_instr i
-  | Instr i            -> printf "%a" pp_instr i
+  | SymDefInstr (s, i) -> fprintf f "%s %a" s pp_instr i
+  | Instr i            -> fprintf f "%a" pp_instr i
 
-let rec pp_ast f = function
-  | Line l -> printf "%a" pp_line l
-  | Instrs (l, s) -> printf "%a\n%a" pp_line l pp_ast s
+let pp_ast f t = List.iter (fun l -> fprintf f "%a\n" pp_line l) t
 
-let pp = printf "%a" pp_ast
+let print_ast = printf "%a" pp_ast

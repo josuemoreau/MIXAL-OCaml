@@ -1,61 +1,41 @@
 State 0:
 main' -> . main [ # ]
--- On STR shift to state 1
--- On MIXOP shift to state 2
--- On ASSOP shift to state 43
--- On ALFOP shift to state 45
--- On main shift to state 47
--- On line shift to state 48
--- On instrs shift to state 52
--- On instr shift to state 51
+-- On MIXOP shift to state 1
+-- On IDENT shift to state 39
+-- On ASSOP shift to state 40
+-- On ALFOP shift to state 42
+-- On separated_nonempty_list(EINSTR,line) shift to state 44
+-- On main shift to state 45
+-- On loption(separated_nonempty_list(EINSTR,line)) shift to state 46
+-- On line shift to state 47
+-- On instrs shift to state 51
+-- On instr shift to state 50
+-- On EOF reduce production loption(separated_nonempty_list(EINSTR,line)) -> 
 
 State 1:
-line -> STR . instr [ EOF EINSTR ]
--- On MIXOP shift to state 2
--- On ASSOP shift to state 43
--- On ALFOP shift to state 45
--- On instr shift to state 46
+instr -> MIXOP . apart ipart fpart [ EOF EINSTR ]
+-- On PLUS shift to state 2
+-- On MINUS shift to state 7
+-- On INT shift to state 3
+-- On IDENT shift to state 4
+-- On EQUAL shift to state 9
+-- On ASTERISK shift to state 5
+-- On expr shift to state 33
+-- On apart shift to state 34
+-- On aexpr shift to state 29
+-- On LPAR reduce production apart -> 
+-- On EOF reduce production apart -> 
+-- On EINSTR reduce production apart -> 
+-- On COMMA reduce production apart -> 
 
 State 2:
-instr -> MIXOP . apart ipart fpart [ EOF EINSTR ]
--- On STR shift to state 3
--- On PLUS shift to state 4
--- On MINUS shift to state 8
--- On INT shift to state 5
--- On EQUAL shift to state 10
--- On ASTERISK shift to state 6
--- On expr shift to state 35
--- On epsilon shift to state 36
--- On apart shift to state 37
--- On aexpr shift to state 30
--- On LPAR reduce production epsilon -> 
--- On EOF reduce production epsilon -> 
--- On EINSTR reduce production epsilon -> 
--- On COMMA reduce production epsilon -> 
+expr -> PLUS . aexpr [ RPAR PLUS MUL MINUS LPAR FSPEC EQUAL EOF EINSTR DIVP DIV COMMA ]
+-- On INT shift to state 3
+-- On IDENT shift to state 4
+-- On ASTERISK shift to state 5
+-- On aexpr shift to state 6
 
 State 3:
-aexpr -> STR . [ RPAR PLUS MUL MINUS LPAR FSPEC EQUAL EOF EINSTR DIVP DIV COMMA ]
--- On RPAR reduce production aexpr -> STR 
--- On PLUS reduce production aexpr -> STR 
--- On MUL reduce production aexpr -> STR 
--- On MINUS reduce production aexpr -> STR 
--- On LPAR reduce production aexpr -> STR 
--- On FSPEC reduce production aexpr -> STR 
--- On EQUAL reduce production aexpr -> STR 
--- On EOF reduce production aexpr -> STR 
--- On EINSTR reduce production aexpr -> STR 
--- On DIVP reduce production aexpr -> STR 
--- On DIV reduce production aexpr -> STR 
--- On COMMA reduce production aexpr -> STR 
-
-State 4:
-expr -> PLUS . aexpr [ RPAR PLUS MUL MINUS LPAR FSPEC EQUAL EOF EINSTR DIVP DIV COMMA ]
--- On STR shift to state 3
--- On INT shift to state 5
--- On ASTERISK shift to state 6
--- On aexpr shift to state 7
-
-State 5:
 aexpr -> INT . [ RPAR PLUS MUL MINUS LPAR FSPEC EQUAL EOF EINSTR DIVP DIV COMMA ]
 -- On RPAR reduce production aexpr -> INT 
 -- On PLUS reduce production aexpr -> INT 
@@ -70,7 +50,22 @@ aexpr -> INT . [ RPAR PLUS MUL MINUS LPAR FSPEC EQUAL EOF EINSTR DIVP DIV COMMA 
 -- On DIV reduce production aexpr -> INT 
 -- On COMMA reduce production aexpr -> INT 
 
-State 6:
+State 4:
+aexpr -> IDENT . [ RPAR PLUS MUL MINUS LPAR FSPEC EQUAL EOF EINSTR DIVP DIV COMMA ]
+-- On RPAR reduce production aexpr -> IDENT 
+-- On PLUS reduce production aexpr -> IDENT 
+-- On MUL reduce production aexpr -> IDENT 
+-- On MINUS reduce production aexpr -> IDENT 
+-- On LPAR reduce production aexpr -> IDENT 
+-- On FSPEC reduce production aexpr -> IDENT 
+-- On EQUAL reduce production aexpr -> IDENT 
+-- On EOF reduce production aexpr -> IDENT 
+-- On EINSTR reduce production aexpr -> IDENT 
+-- On DIVP reduce production aexpr -> IDENT 
+-- On DIV reduce production aexpr -> IDENT 
+-- On COMMA reduce production aexpr -> IDENT 
+
+State 5:
 aexpr -> ASTERISK . [ RPAR PLUS MUL MINUS LPAR FSPEC EQUAL EOF EINSTR DIVP DIV COMMA ]
 -- On RPAR reduce production aexpr -> ASTERISK 
 -- On PLUS reduce production aexpr -> ASTERISK 
@@ -85,7 +80,7 @@ aexpr -> ASTERISK . [ RPAR PLUS MUL MINUS LPAR FSPEC EQUAL EOF EINSTR DIVP DIV C
 -- On DIV reduce production aexpr -> ASTERISK 
 -- On COMMA reduce production aexpr -> ASTERISK 
 
-State 7:
+State 6:
 expr -> PLUS aexpr . [ RPAR PLUS MUL MINUS LPAR FSPEC EQUAL EOF EINSTR DIVP DIV COMMA ]
 -- On RPAR reduce production expr -> PLUS aexpr 
 -- On PLUS reduce production expr -> PLUS aexpr 
@@ -100,14 +95,14 @@ expr -> PLUS aexpr . [ RPAR PLUS MUL MINUS LPAR FSPEC EQUAL EOF EINSTR DIVP DIV 
 -- On DIV reduce production expr -> PLUS aexpr 
 -- On COMMA reduce production expr -> PLUS aexpr 
 
-State 8:
+State 7:
 expr -> MINUS . aexpr [ RPAR PLUS MUL MINUS LPAR FSPEC EQUAL EOF EINSTR DIVP DIV COMMA ]
--- On STR shift to state 3
--- On INT shift to state 5
--- On ASTERISK shift to state 6
--- On aexpr shift to state 9
+-- On INT shift to state 3
+-- On IDENT shift to state 4
+-- On ASTERISK shift to state 5
+-- On aexpr shift to state 8
 
-State 9:
+State 8:
 expr -> MINUS aexpr . [ RPAR PLUS MUL MINUS LPAR FSPEC EQUAL EOF EINSTR DIVP DIV COMMA ]
 -- On RPAR reduce production expr -> MINUS aexpr 
 -- On PLUS reduce production expr -> MINUS aexpr 
@@ -122,43 +117,43 @@ expr -> MINUS aexpr . [ RPAR PLUS MUL MINUS LPAR FSPEC EQUAL EOF EINSTR DIVP DIV
 -- On DIV reduce production expr -> MINUS aexpr 
 -- On COMMA reduce production expr -> MINUS aexpr 
 
-State 10:
+State 9:
 apart -> EQUAL . wpart EQUAL [ LPAR EOF EINSTR COMMA ]
--- On STR shift to state 3
--- On PLUS shift to state 4
--- On MINUS shift to state 8
--- On INT shift to state 5
--- On ASTERISK shift to state 6
--- On wpart shift to state 11
--- On expr shift to state 14
--- On awpart shift to state 34
--- On aexpr shift to state 30
+-- On PLUS shift to state 2
+-- On MINUS shift to state 7
+-- On INT shift to state 3
+-- On IDENT shift to state 4
+-- On ASTERISK shift to state 5
+-- On wpart shift to state 10
+-- On expr shift to state 13
+-- On awpart shift to state 32
+-- On aexpr shift to state 29
 
-State 11:
+State 10:
 apart -> EQUAL wpart . EQUAL [ LPAR EOF EINSTR COMMA ]
 wpart -> wpart . COMMA awpart [ EQUAL COMMA ]
--- On EQUAL shift to state 12
--- On COMMA shift to state 13
+-- On EQUAL shift to state 11
+-- On COMMA shift to state 12
 
-State 12:
+State 11:
 apart -> EQUAL wpart EQUAL . [ LPAR EOF EINSTR COMMA ]
 -- On LPAR reduce production apart -> EQUAL wpart EQUAL 
 -- On EOF reduce production apart -> EQUAL wpart EQUAL 
 -- On EINSTR reduce production apart -> EQUAL wpart EQUAL 
 -- On COMMA reduce production apart -> EQUAL wpart EQUAL 
 
-State 13:
+State 12:
 wpart -> wpart COMMA . awpart [ EQUAL EOF EINSTR COMMA ]
--- On STR shift to state 3
--- On PLUS shift to state 4
--- On MINUS shift to state 8
--- On INT shift to state 5
--- On ASTERISK shift to state 6
--- On expr shift to state 14
--- On awpart shift to state 33
--- On aexpr shift to state 30
+-- On PLUS shift to state 2
+-- On MINUS shift to state 7
+-- On INT shift to state 3
+-- On IDENT shift to state 4
+-- On ASTERISK shift to state 5
+-- On expr shift to state 13
+-- On awpart shift to state 31
+-- On aexpr shift to state 29
 
-State 14:
+State 13:
 awpart -> expr . fpart [ EQUAL EOF EINSTR COMMA ]
 expr -> expr . PLUS aexpr [ PLUS MUL MINUS LPAR FSPEC EQUAL EOF EINSTR DIVP DIV COMMA ]
 expr -> expr . MINUS aexpr [ PLUS MUL MINUS LPAR FSPEC EQUAL EOF EINSTR DIVP DIV COMMA ]
@@ -166,28 +161,27 @@ expr -> expr . MUL aexpr [ PLUS MUL MINUS LPAR FSPEC EQUAL EOF EINSTR DIVP DIV C
 expr -> expr . DIV aexpr [ PLUS MUL MINUS LPAR FSPEC EQUAL EOF EINSTR DIVP DIV COMMA ]
 expr -> expr . DIVP aexpr [ PLUS MUL MINUS LPAR FSPEC EQUAL EOF EINSTR DIVP DIV COMMA ]
 expr -> expr . FSPEC aexpr [ PLUS MUL MINUS LPAR FSPEC EQUAL EOF EINSTR DIVP DIV COMMA ]
--- On PLUS shift to state 15
--- On MUL shift to state 17
--- On MINUS shift to state 19
--- On LPAR shift to state 21
--- On FSPEC shift to state 24
--- On DIVP shift to state 26
--- On DIV shift to state 28
--- On fpart shift to state 31
--- On epsilon shift to state 32
--- On EQUAL reduce production epsilon -> 
--- On EOF reduce production epsilon -> 
--- On EINSTR reduce production epsilon -> 
--- On COMMA reduce production epsilon -> 
+-- On PLUS shift to state 14
+-- On MUL shift to state 16
+-- On MINUS shift to state 18
+-- On LPAR shift to state 20
+-- On FSPEC shift to state 23
+-- On DIVP shift to state 25
+-- On DIV shift to state 27
+-- On fpart shift to state 30
+-- On EQUAL reduce production fpart -> 
+-- On EOF reduce production fpart -> 
+-- On EINSTR reduce production fpart -> 
+-- On COMMA reduce production fpart -> 
+
+State 14:
+expr -> expr PLUS . aexpr [ RPAR PLUS MUL MINUS LPAR FSPEC EQUAL EOF EINSTR DIVP DIV COMMA ]
+-- On INT shift to state 3
+-- On IDENT shift to state 4
+-- On ASTERISK shift to state 5
+-- On aexpr shift to state 15
 
 State 15:
-expr -> expr PLUS . aexpr [ RPAR PLUS MUL MINUS LPAR FSPEC EQUAL EOF EINSTR DIVP DIV COMMA ]
--- On STR shift to state 3
--- On INT shift to state 5
--- On ASTERISK shift to state 6
--- On aexpr shift to state 16
-
-State 16:
 expr -> expr PLUS aexpr . [ RPAR PLUS MUL MINUS LPAR FSPEC EQUAL EOF EINSTR DIVP DIV COMMA ]
 -- On RPAR reduce production expr -> expr PLUS aexpr 
 -- On PLUS reduce production expr -> expr PLUS aexpr 
@@ -202,14 +196,14 @@ expr -> expr PLUS aexpr . [ RPAR PLUS MUL MINUS LPAR FSPEC EQUAL EOF EINSTR DIVP
 -- On DIV reduce production expr -> expr PLUS aexpr 
 -- On COMMA reduce production expr -> expr PLUS aexpr 
 
-State 17:
+State 16:
 expr -> expr MUL . aexpr [ RPAR PLUS MUL MINUS LPAR FSPEC EQUAL EOF EINSTR DIVP DIV COMMA ]
--- On STR shift to state 3
--- On INT shift to state 5
--- On ASTERISK shift to state 6
--- On aexpr shift to state 18
+-- On INT shift to state 3
+-- On IDENT shift to state 4
+-- On ASTERISK shift to state 5
+-- On aexpr shift to state 17
 
-State 18:
+State 17:
 expr -> expr MUL aexpr . [ RPAR PLUS MUL MINUS LPAR FSPEC EQUAL EOF EINSTR DIVP DIV COMMA ]
 -- On RPAR reduce production expr -> expr MUL aexpr 
 -- On PLUS reduce production expr -> expr MUL aexpr 
@@ -224,14 +218,14 @@ expr -> expr MUL aexpr . [ RPAR PLUS MUL MINUS LPAR FSPEC EQUAL EOF EINSTR DIVP 
 -- On DIV reduce production expr -> expr MUL aexpr 
 -- On COMMA reduce production expr -> expr MUL aexpr 
 
-State 19:
+State 18:
 expr -> expr MINUS . aexpr [ RPAR PLUS MUL MINUS LPAR FSPEC EQUAL EOF EINSTR DIVP DIV COMMA ]
--- On STR shift to state 3
--- On INT shift to state 5
--- On ASTERISK shift to state 6
--- On aexpr shift to state 20
+-- On INT shift to state 3
+-- On IDENT shift to state 4
+-- On ASTERISK shift to state 5
+-- On aexpr shift to state 19
 
-State 20:
+State 19:
 expr -> expr MINUS aexpr . [ RPAR PLUS MUL MINUS LPAR FSPEC EQUAL EOF EINSTR DIVP DIV COMMA ]
 -- On RPAR reduce production expr -> expr MINUS aexpr 
 -- On PLUS reduce production expr -> expr MINUS aexpr 
@@ -246,17 +240,17 @@ expr -> expr MINUS aexpr . [ RPAR PLUS MUL MINUS LPAR FSPEC EQUAL EOF EINSTR DIV
 -- On DIV reduce production expr -> expr MINUS aexpr 
 -- On COMMA reduce production expr -> expr MINUS aexpr 
 
-State 21:
+State 20:
 fpart -> LPAR . expr RPAR [ EQUAL EOF EINSTR COMMA ]
--- On STR shift to state 3
--- On PLUS shift to state 4
--- On MINUS shift to state 8
--- On INT shift to state 5
--- On ASTERISK shift to state 6
--- On expr shift to state 22
--- On aexpr shift to state 30
+-- On PLUS shift to state 2
+-- On MINUS shift to state 7
+-- On INT shift to state 3
+-- On IDENT shift to state 4
+-- On ASTERISK shift to state 5
+-- On expr shift to state 21
+-- On aexpr shift to state 29
 
-State 22:
+State 21:
 expr -> expr . PLUS aexpr [ RPAR PLUS MUL MINUS FSPEC DIVP DIV ]
 expr -> expr . MINUS aexpr [ RPAR PLUS MUL MINUS FSPEC DIVP DIV ]
 expr -> expr . MUL aexpr [ RPAR PLUS MUL MINUS FSPEC DIVP DIV ]
@@ -264,29 +258,29 @@ expr -> expr . DIV aexpr [ RPAR PLUS MUL MINUS FSPEC DIVP DIV ]
 expr -> expr . DIVP aexpr [ RPAR PLUS MUL MINUS FSPEC DIVP DIV ]
 expr -> expr . FSPEC aexpr [ RPAR PLUS MUL MINUS FSPEC DIVP DIV ]
 fpart -> LPAR expr . RPAR [ EQUAL EOF EINSTR COMMA ]
--- On RPAR shift to state 23
--- On PLUS shift to state 15
--- On MUL shift to state 17
--- On MINUS shift to state 19
--- On FSPEC shift to state 24
--- On DIVP shift to state 26
--- On DIV shift to state 28
+-- On RPAR shift to state 22
+-- On PLUS shift to state 14
+-- On MUL shift to state 16
+-- On MINUS shift to state 18
+-- On FSPEC shift to state 23
+-- On DIVP shift to state 25
+-- On DIV shift to state 27
 
-State 23:
+State 22:
 fpart -> LPAR expr RPAR . [ EQUAL EOF EINSTR COMMA ]
 -- On EQUAL reduce production fpart -> LPAR expr RPAR 
 -- On EOF reduce production fpart -> LPAR expr RPAR 
 -- On EINSTR reduce production fpart -> LPAR expr RPAR 
 -- On COMMA reduce production fpart -> LPAR expr RPAR 
 
-State 24:
+State 23:
 expr -> expr FSPEC . aexpr [ RPAR PLUS MUL MINUS LPAR FSPEC EQUAL EOF EINSTR DIVP DIV COMMA ]
--- On STR shift to state 3
--- On INT shift to state 5
--- On ASTERISK shift to state 6
--- On aexpr shift to state 25
+-- On INT shift to state 3
+-- On IDENT shift to state 4
+-- On ASTERISK shift to state 5
+-- On aexpr shift to state 24
 
-State 25:
+State 24:
 expr -> expr FSPEC aexpr . [ RPAR PLUS MUL MINUS LPAR FSPEC EQUAL EOF EINSTR DIVP DIV COMMA ]
 -- On RPAR reduce production expr -> expr FSPEC aexpr 
 -- On PLUS reduce production expr -> expr FSPEC aexpr 
@@ -301,14 +295,14 @@ expr -> expr FSPEC aexpr . [ RPAR PLUS MUL MINUS LPAR FSPEC EQUAL EOF EINSTR DIV
 -- On DIV reduce production expr -> expr FSPEC aexpr 
 -- On COMMA reduce production expr -> expr FSPEC aexpr 
 
-State 26:
+State 25:
 expr -> expr DIVP . aexpr [ RPAR PLUS MUL MINUS LPAR FSPEC EQUAL EOF EINSTR DIVP DIV COMMA ]
--- On STR shift to state 3
--- On INT shift to state 5
--- On ASTERISK shift to state 6
--- On aexpr shift to state 27
+-- On INT shift to state 3
+-- On IDENT shift to state 4
+-- On ASTERISK shift to state 5
+-- On aexpr shift to state 26
 
-State 27:
+State 26:
 expr -> expr DIVP aexpr . [ RPAR PLUS MUL MINUS LPAR FSPEC EQUAL EOF EINSTR DIVP DIV COMMA ]
 -- On RPAR reduce production expr -> expr DIVP aexpr 
 -- On PLUS reduce production expr -> expr DIVP aexpr 
@@ -323,14 +317,14 @@ expr -> expr DIVP aexpr . [ RPAR PLUS MUL MINUS LPAR FSPEC EQUAL EOF EINSTR DIVP
 -- On DIV reduce production expr -> expr DIVP aexpr 
 -- On COMMA reduce production expr -> expr DIVP aexpr 
 
-State 28:
+State 27:
 expr -> expr DIV . aexpr [ RPAR PLUS MUL MINUS LPAR FSPEC EQUAL EOF EINSTR DIVP DIV COMMA ]
--- On STR shift to state 3
--- On INT shift to state 5
--- On ASTERISK shift to state 6
--- On aexpr shift to state 29
+-- On INT shift to state 3
+-- On IDENT shift to state 4
+-- On ASTERISK shift to state 5
+-- On aexpr shift to state 28
 
-State 29:
+State 28:
 expr -> expr DIV aexpr . [ RPAR PLUS MUL MINUS LPAR FSPEC EQUAL EOF EINSTR DIVP DIV COMMA ]
 -- On RPAR reduce production expr -> expr DIV aexpr 
 -- On PLUS reduce production expr -> expr DIV aexpr 
@@ -345,7 +339,7 @@ expr -> expr DIV aexpr . [ RPAR PLUS MUL MINUS LPAR FSPEC EQUAL EOF EINSTR DIVP 
 -- On DIV reduce production expr -> expr DIV aexpr 
 -- On COMMA reduce production expr -> expr DIV aexpr 
 
-State 30:
+State 29:
 expr -> aexpr . [ RPAR PLUS MUL MINUS LPAR FSPEC EQUAL EOF EINSTR DIVP DIV COMMA ]
 -- On RPAR reduce production expr -> aexpr 
 -- On PLUS reduce production expr -> aexpr 
@@ -360,35 +354,28 @@ expr -> aexpr . [ RPAR PLUS MUL MINUS LPAR FSPEC EQUAL EOF EINSTR DIVP DIV COMMA
 -- On DIV reduce production expr -> aexpr 
 -- On COMMA reduce production expr -> aexpr 
 
-State 31:
+State 30:
 awpart -> expr fpart . [ EQUAL EOF EINSTR COMMA ]
 -- On EQUAL reduce production awpart -> expr fpart 
 -- On EOF reduce production awpart -> expr fpart 
 -- On EINSTR reduce production awpart -> expr fpart 
 -- On COMMA reduce production awpart -> expr fpart 
 
-State 32:
-fpart -> epsilon . [ EQUAL EOF EINSTR COMMA ]
--- On EQUAL reduce production fpart -> epsilon 
--- On EOF reduce production fpart -> epsilon 
--- On EINSTR reduce production fpart -> epsilon 
--- On COMMA reduce production fpart -> epsilon 
-
-State 33:
+State 31:
 wpart -> wpart COMMA awpart . [ EQUAL EOF EINSTR COMMA ]
 -- On EQUAL reduce production wpart -> wpart COMMA awpart 
 -- On EOF reduce production wpart -> wpart COMMA awpart 
 -- On EINSTR reduce production wpart -> wpart COMMA awpart 
 -- On COMMA reduce production wpart -> wpart COMMA awpart 
 
-State 34:
+State 32:
 wpart -> awpart . [ EQUAL EOF EINSTR COMMA ]
 -- On EQUAL reduce production wpart -> awpart 
 -- On EOF reduce production wpart -> awpart 
 -- On EINSTR reduce production wpart -> awpart 
 -- On COMMA reduce production wpart -> awpart 
 
-State 35:
+State 33:
 apart -> expr . [ LPAR EOF EINSTR COMMA ]
 expr -> expr . PLUS aexpr [ PLUS MUL MINUS LPAR FSPEC EOF EINSTR DIVP DIV COMMA ]
 expr -> expr . MINUS aexpr [ PLUS MUL MINUS LPAR FSPEC EOF EINSTR DIVP DIV COMMA ]
@@ -396,44 +383,36 @@ expr -> expr . MUL aexpr [ PLUS MUL MINUS LPAR FSPEC EOF EINSTR DIVP DIV COMMA ]
 expr -> expr . DIV aexpr [ PLUS MUL MINUS LPAR FSPEC EOF EINSTR DIVP DIV COMMA ]
 expr -> expr . DIVP aexpr [ PLUS MUL MINUS LPAR FSPEC EOF EINSTR DIVP DIV COMMA ]
 expr -> expr . FSPEC aexpr [ PLUS MUL MINUS LPAR FSPEC EOF EINSTR DIVP DIV COMMA ]
--- On PLUS shift to state 15
--- On MUL shift to state 17
--- On MINUS shift to state 19
--- On FSPEC shift to state 24
--- On DIVP shift to state 26
--- On DIV shift to state 28
+-- On PLUS shift to state 14
+-- On MUL shift to state 16
+-- On MINUS shift to state 18
+-- On FSPEC shift to state 23
+-- On DIVP shift to state 25
+-- On DIV shift to state 27
 -- On LPAR reduce production apart -> expr 
 -- On EOF reduce production apart -> expr 
 -- On EINSTR reduce production apart -> expr 
 -- On COMMA reduce production apart -> expr 
 
-State 36:
-apart -> epsilon . [ LPAR EOF EINSTR COMMA ]
--- On LPAR reduce production apart -> epsilon 
--- On EOF reduce production apart -> epsilon 
--- On EINSTR reduce production apart -> epsilon 
--- On COMMA reduce production apart -> epsilon 
-
-State 37:
+State 34:
 instr -> MIXOP apart . ipart fpart [ EOF EINSTR ]
--- On COMMA shift to state 38
--- On ipart shift to state 40
--- On epsilon shift to state 42
--- On LPAR reduce production epsilon -> 
--- On EOF reduce production epsilon -> 
--- On EINSTR reduce production epsilon -> 
+-- On COMMA shift to state 35
+-- On ipart shift to state 37
+-- On LPAR reduce production ipart -> 
+-- On EOF reduce production ipart -> 
+-- On EINSTR reduce production ipart -> 
 
-State 38:
+State 35:
 ipart -> COMMA . expr [ LPAR EOF EINSTR ]
--- On STR shift to state 3
--- On PLUS shift to state 4
--- On MINUS shift to state 8
--- On INT shift to state 5
--- On ASTERISK shift to state 6
--- On expr shift to state 39
--- On aexpr shift to state 30
+-- On PLUS shift to state 2
+-- On MINUS shift to state 7
+-- On INT shift to state 3
+-- On IDENT shift to state 4
+-- On ASTERISK shift to state 5
+-- On expr shift to state 36
+-- On aexpr shift to state 29
 
-State 39:
+State 36:
 expr -> expr . PLUS aexpr [ PLUS MUL MINUS LPAR FSPEC EOF EINSTR DIVP DIV ]
 expr -> expr . MINUS aexpr [ PLUS MUL MINUS LPAR FSPEC EOF EINSTR DIVP DIV ]
 expr -> expr . MUL aexpr [ PLUS MUL MINUS LPAR FSPEC EOF EINSTR DIVP DIV ]
@@ -441,98 +420,106 @@ expr -> expr . DIV aexpr [ PLUS MUL MINUS LPAR FSPEC EOF EINSTR DIVP DIV ]
 expr -> expr . DIVP aexpr [ PLUS MUL MINUS LPAR FSPEC EOF EINSTR DIVP DIV ]
 expr -> expr . FSPEC aexpr [ PLUS MUL MINUS LPAR FSPEC EOF EINSTR DIVP DIV ]
 ipart -> COMMA expr . [ LPAR EOF EINSTR ]
--- On PLUS shift to state 15
--- On MUL shift to state 17
--- On MINUS shift to state 19
--- On FSPEC shift to state 24
--- On DIVP shift to state 26
--- On DIV shift to state 28
+-- On PLUS shift to state 14
+-- On MUL shift to state 16
+-- On MINUS shift to state 18
+-- On FSPEC shift to state 23
+-- On DIVP shift to state 25
+-- On DIV shift to state 27
 -- On LPAR reduce production ipart -> COMMA expr 
 -- On EOF reduce production ipart -> COMMA expr 
 -- On EINSTR reduce production ipart -> COMMA expr 
 
-State 40:
+State 37:
 instr -> MIXOP apart ipart . fpart [ EOF EINSTR ]
--- On LPAR shift to state 21
--- On fpart shift to state 41
--- On epsilon shift to state 32
--- On EOF reduce production epsilon -> 
--- On EINSTR reduce production epsilon -> 
+-- On LPAR shift to state 20
+-- On fpart shift to state 38
+-- On EOF reduce production fpart -> 
+-- On EINSTR reduce production fpart -> 
 
-State 41:
+State 38:
 instr -> MIXOP apart ipart fpart . [ EOF EINSTR ]
 -- On EOF reduce production instr -> MIXOP apart ipart fpart 
 -- On EINSTR reduce production instr -> MIXOP apart ipart fpart 
 
-State 42:
-ipart -> epsilon . [ LPAR EOF EINSTR ]
--- On LPAR reduce production ipart -> epsilon 
--- On EOF reduce production ipart -> epsilon 
--- On EINSTR reduce production ipart -> epsilon 
+State 39:
+line -> IDENT . instr [ EOF EINSTR ]
+-- On MIXOP shift to state 1
+-- On ASSOP shift to state 40
+-- On ALFOP shift to state 42
+-- On instr shift to state 43
 
-State 43:
+State 40:
 instr -> ASSOP . wpart [ EOF EINSTR ]
--- On STR shift to state 3
--- On PLUS shift to state 4
--- On MINUS shift to state 8
--- On INT shift to state 5
--- On ASTERISK shift to state 6
--- On wpart shift to state 44
--- On expr shift to state 14
--- On awpart shift to state 34
--- On aexpr shift to state 30
+-- On PLUS shift to state 2
+-- On MINUS shift to state 7
+-- On INT shift to state 3
+-- On IDENT shift to state 4
+-- On ASTERISK shift to state 5
+-- On wpart shift to state 41
+-- On expr shift to state 13
+-- On awpart shift to state 32
+-- On aexpr shift to state 29
 
-State 44:
+State 41:
 instr -> ASSOP wpart . [ EOF EINSTR ]
 wpart -> wpart . COMMA awpart [ EOF EINSTR COMMA ]
--- On COMMA shift to state 13
+-- On COMMA shift to state 12
 -- On EOF reduce production instr -> ASSOP wpart 
 -- On EINSTR reduce production instr -> ASSOP wpart 
 
-State 45:
+State 42:
 instr -> ALFOP . [ EOF EINSTR ]
 -- On EOF reduce production instr -> ALFOP 
 -- On EINSTR reduce production instr -> ALFOP 
 
-State 46:
-line -> STR instr . [ EOF EINSTR ]
--- On EOF reduce production line -> STR instr 
--- On EINSTR reduce production line -> STR instr 
+State 43:
+line -> IDENT instr . [ EOF EINSTR ]
+-- On EOF reduce production line -> IDENT instr 
+-- On EINSTR reduce production line -> IDENT instr 
 
-State 47:
+State 44:
+loption(separated_nonempty_list(EINSTR,line)) -> separated_nonempty_list(EINSTR,line) . [ EOF ]
+-- On EOF reduce production loption(separated_nonempty_list(EINSTR,line)) -> separated_nonempty_list(EINSTR,line) 
+
+State 45:
 main' -> main . [ # ]
 -- On # accept main
 
+State 46:
+instrs -> loption(separated_nonempty_list(EINSTR,line)) . [ EOF ]
+-- On EOF reduce production instrs -> loption(separated_nonempty_list(EINSTR,line)) 
+
+State 47:
+separated_nonempty_list(EINSTR,line) -> line . [ EOF ]
+separated_nonempty_list(EINSTR,line) -> line . EINSTR separated_nonempty_list(EINSTR,line) [ EOF ]
+-- On EINSTR shift to state 48
+-- On EOF reduce production separated_nonempty_list(EINSTR,line) -> line 
+
 State 48:
-instrs -> line . [ EOF ]
-instrs -> line . EINSTR instrs [ EOF ]
--- On EINSTR shift to state 49
--- On EOF reduce production instrs -> line 
+separated_nonempty_list(EINSTR,line) -> line EINSTR . separated_nonempty_list(EINSTR,line) [ EOF ]
+-- On MIXOP shift to state 1
+-- On IDENT shift to state 39
+-- On ASSOP shift to state 40
+-- On ALFOP shift to state 42
+-- On separated_nonempty_list(EINSTR,line) shift to state 49
+-- On line shift to state 47
+-- On instr shift to state 50
 
 State 49:
-instrs -> line EINSTR . instrs [ EOF ]
--- On STR shift to state 1
--- On MIXOP shift to state 2
--- On ASSOP shift to state 43
--- On ALFOP shift to state 45
--- On line shift to state 48
--- On instrs shift to state 50
--- On instr shift to state 51
+separated_nonempty_list(EINSTR,line) -> line EINSTR separated_nonempty_list(EINSTR,line) . [ EOF ]
+-- On EOF reduce production separated_nonempty_list(EINSTR,line) -> line EINSTR separated_nonempty_list(EINSTR,line) 
 
 State 50:
-instrs -> line EINSTR instrs . [ EOF ]
--- On EOF reduce production instrs -> line EINSTR instrs 
-
-State 51:
 line -> instr . [ EOF EINSTR ]
 -- On EOF reduce production line -> instr 
 -- On EINSTR reduce production line -> instr 
 
-State 52:
+State 51:
 main -> instrs . EOF [ # ]
--- On EOF shift to state 53
+-- On EOF shift to state 52
 
-State 53:
+State 52:
 main -> instrs EOF . [ # ]
 -- On # reduce production main -> instrs EOF 
 
