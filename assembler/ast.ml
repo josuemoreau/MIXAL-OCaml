@@ -96,7 +96,7 @@ let rec pp_wval f = function
 let pp_addr f = function
   | AEmpty -> ()
   | AExpr e -> printf "%a" pp_expr e
-  | ALiteral w -> printf "%a" pp_wval w
+  | ALiteral w -> printf "=%a=" pp_wval w
 
 let pp_mixinstr f (i: mix_instr) =
   printf "%s %a%a%a" i.op pp_addr i.addr pp_index i.index pp_fspec i.fspec
@@ -117,7 +117,7 @@ let pp_line f = function
   | Instr i            -> printf "%a" pp_instr i
 
 let rec pp_ast f = function
-  | Line l -> printf "@[%a@]" pp_line l
-  | Instrs (l, s) -> printf "@[%a@]\n%a" pp_line l pp_ast s
+  | Line l -> printf "%a" pp_line l
+  | Instrs (l, s) -> printf "%a\n%a" pp_line l pp_ast s
 
 let pp = printf "%a" pp_ast

@@ -1,7 +1,7 @@
 %token PLUS MINUS MUL DIV DIVP FSPEC LPAR RPAR
 %token <string> MIXOP
 %token <string> ASSOP
-%token ALFOP
+%token <string>ALFOP
 %token <string> STR
 %token <int> INT
 %token ASTERISK
@@ -14,8 +14,8 @@ main:
 ;
 
 instrs:
-| l = line              { Format.printf "@[%a@]@." Ast.pp_line l; Ast.Line l         }
-| l = line; EINSTR; is = instrs { Format.printf "@[%a@]@." Ast.pp_line l; Ast.Instrs (l, is) }
+| l = line              { Ast.Line l         }
+| l = line; EINSTR; is = instrs { Ast.Instrs (l, is) }
 ;
 
 line:
@@ -28,7 +28,7 @@ instr:
     Ast.MixInstr { op = op; addr = addr; index = i; fspec = f }
   }
 | op = ASSOP; addr = wpart { Ast.AssInstr { op = op; addr = addr } }
-| op = ALFOP; s = STR      { Ast.AlfInstr { value = s }            }
+| s = ALFOP      { Ast.AlfInstr { value = s }            }
 ;
 
 awpart:

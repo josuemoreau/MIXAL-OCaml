@@ -19,7 +19,7 @@ type token =
   | COMMA
   | ASTERISK
   | ASSOP of (string)
-  | ALFOP
+  | ALFOP of (string)
 
 (* This exception is raised by the monolithic API functions. *)
 

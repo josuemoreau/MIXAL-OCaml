@@ -4,17 +4,17 @@ main' -> . main [ # ]
 -- On MIXOP shift to state 2
 -- On ASSOP shift to state 43
 -- On ALFOP shift to state 45
--- On main shift to state 48
--- On line shift to state 49
--- On instrs shift to state 53
--- On instr shift to state 52
+-- On main shift to state 47
+-- On line shift to state 48
+-- On instrs shift to state 52
+-- On instr shift to state 51
 
 State 1:
 line -> STR . instr [ EOF EINSTR ]
 -- On MIXOP shift to state 2
 -- On ASSOP shift to state 43
 -- On ALFOP shift to state 45
--- On instr shift to state 47
+-- On instr shift to state 46
 
 State 2:
 instr -> MIXOP . apart ipart fpart [ EOF EINSTR ]
@@ -490,53 +490,49 @@ wpart -> wpart . COMMA awpart [ EOF EINSTR COMMA ]
 -- On EINSTR reduce production instr -> ASSOP wpart 
 
 State 45:
-instr -> ALFOP . STR [ EOF EINSTR ]
--- On STR shift to state 46
+instr -> ALFOP . [ EOF EINSTR ]
+-- On EOF reduce production instr -> ALFOP 
+-- On EINSTR reduce production instr -> ALFOP 
 
 State 46:
-instr -> ALFOP STR . [ EOF EINSTR ]
--- On EOF reduce production instr -> ALFOP STR 
--- On EINSTR reduce production instr -> ALFOP STR 
-
-State 47:
 line -> STR instr . [ EOF EINSTR ]
 -- On EOF reduce production line -> STR instr 
 -- On EINSTR reduce production line -> STR instr 
 
-State 48:
+State 47:
 main' -> main . [ # ]
 -- On # accept main
 
-State 49:
+State 48:
 instrs -> line . [ EOF ]
 instrs -> line . EINSTR instrs [ EOF ]
--- On EINSTR shift to state 50
+-- On EINSTR shift to state 49
 -- On EOF reduce production instrs -> line 
 
-State 50:
+State 49:
 instrs -> line EINSTR . instrs [ EOF ]
 -- On STR shift to state 1
 -- On MIXOP shift to state 2
 -- On ASSOP shift to state 43
 -- On ALFOP shift to state 45
--- On line shift to state 49
--- On instrs shift to state 51
--- On instr shift to state 52
+-- On line shift to state 48
+-- On instrs shift to state 50
+-- On instr shift to state 51
 
-State 51:
+State 50:
 instrs -> line EINSTR instrs . [ EOF ]
 -- On EOF reduce production instrs -> line EINSTR instrs 
 
-State 52:
+State 51:
 line -> instr . [ EOF EINSTR ]
 -- On EOF reduce production line -> instr 
 -- On EINSTR reduce production line -> instr 
 
-State 53:
+State 52:
 main -> instrs . EOF [ # ]
--- On EOF shift to state 54
+-- On EOF shift to state 53
 
-State 54:
+State 53:
 main -> instrs EOF . [ # ]
 -- On # reduce production main -> instrs EOF 
 
