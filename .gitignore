@@ -28,6 +28,9 @@ setup.log
 # Local OPAM switch
 _opam/
 
+# Depend file
+.depend
+
 assembler/assembler
 assembler/lexer.ml
 assembler/parser.ml
