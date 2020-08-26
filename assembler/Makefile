@@ -28,7 +28,7 @@ clean:
 	rm *.cmi
 	rm $(EXEC)
 
-depend:
+.depend:
 	ocamldep *.mli *.ml > .depend
 
 include .depend
