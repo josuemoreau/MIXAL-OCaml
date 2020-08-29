@@ -3,6 +3,9 @@
 %token <string> ASSOP
 %token <string> ALFOP
 %token <string> IDENT
+%token <int> LOCALSYMDEF
+%token <int> LOCALSYMBEFORE
+%token <int> LOCALSYMFORWARD
 %token <int> INT
 %token ASTERISK
 %token EQUAL COMMA EINSTR EOF
@@ -18,8 +21,9 @@ instrs:
 ;
 
 line:
-| i = instr              { Ast.Instr i              }
-| sym = IDENT; i = instr   { Ast.SymDefInstr (sym, i) }
+| i = instr              { Ast.Instr i                              }
+| sym = IDENT; i = instr   { Ast.SymDefInstr (Ast.SymString sym, i)               }
+| sym = LOCALSYMDEF; i = instr { Ast.SymDefInstr (Ast.SymLocal sym, i) }
 ;
 
 instr:
@@ -27,7 +31,7 @@ instr:
     Ast.MixInstr { op = Op.mixop_of_str op; addr = addr; index = i; fspec = f }
   }
 | op = ASSOP; addr = wpart { Ast.AssInstr { op = Op.assop_of_str op; addr = addr } }
-| s = ALFOP                { Ast.AlfInstr { value = s }            }
+| s = ALFOP                { Ast.AlfInstr { value = s }                            }
 ;
 
 awpart:
@@ -50,9 +54,10 @@ ipart:
 ;
 
 apart:
-|                         { Ast.AEmpty     }
-| e = expr                { Ast.AExpr e    }
-| EQUAL; w = wpart; EQUAL { Ast.ALiteral w }
+|                         { Ast.AEmpty                              }
+| f = LOCALSYMFORWARD     { Ast.AExpr (Ast.EPos (Ast.ELocalSymF f)) }
+| e = expr                { Ast.AExpr e                             }
+| EQUAL; w = wpart; EQUAL { Ast.ALiteral w               }
 ;
 
 expr:
@@ -68,7 +73,8 @@ expr:
 ;
 
 aexpr:
-| i = INT     { Ast.ENum i    }
-| sym = IDENT   { Ast.ESym sym  }
-| ASTERISK    { Ast.EAsterisk }
+| i = INT              { Ast.ENum i         }
+| sym = LOCALSYMBEFORE { Ast.ELocalSymB sym }
+| sym = IDENT          { Ast.ESym sym       }
+| ASTERISK             { Ast.EAsterisk      }
 ;

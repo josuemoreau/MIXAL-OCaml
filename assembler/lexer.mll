@@ -35,6 +35,8 @@
       "incx"; "decx"; "entx"; "ennx";
       "cmpa"; "cmp1"; "cmp2"; "cmp3"; "cmp4"; "cmp5"; "cmp6"; "cmpx"
     ]
+
+  let int_of_digit d = int_of_char d - int_of_char '0'
 }
 
 let letters = ['a'-'z' 'A'-'Z']
@@ -69,6 +71,9 @@ rule lexer = parse
       let nb = int_of_string n in
       INT nb
     }
+  | (digits as i) ['H' 'h'] { LOCALSYMDEF (int_of_digit i)     }
+  | (digits as i) ['B' 'b'] { LOCALSYMBEFORE (int_of_digit i)  }
+  | (digits as i) ['F' 'f'] { LOCALSYMFORWARD (int_of_digit i) }
   | (letters|digits)+ as s {
       let s' = String.lowercase_ascii s in
       if StringSet.mem s' ass_keywords then ASSOP s'

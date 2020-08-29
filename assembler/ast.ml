@@ -6,6 +6,8 @@ type binop = BAdd | BSub | BMul | BDiv | BDivP | BFSpec
 type atomicexpr =
   | ENum of int
   | ESym of string
+  | ELocalSymB of int
+  | ELocalSymF of int
   | EAsterisk
 type expr =
   | EPos of atomicexpr
@@ -45,8 +47,12 @@ type instr =
   | AssInstr of ass_instr
   | AlfInstr of alf_instr
 
+type symbol =
+  | SymLocal of int
+  | SymString of string
+
 type line =
-  | SymDefInstr of string * instr
+  | SymDefInstr of symbol * instr
   | Instr of instr
 
 type ast = line list
@@ -60,9 +66,11 @@ let pp_binop f = function
   | BFSpec -> fprintf f ":"
 
 let pp_atomicexpr f = function
-  | ENum i    -> fprintf f "%d" i
-  | ESym s    -> fprintf f "%s" s
-  | EAsterisk -> fprintf f "*"
+  | ENum i       -> fprintf f "%d" i
+  | ELocalSymB i -> fprintf f "%db" i
+  | ELocalSymF i -> fprintf f "%df" i
+  | ESym s       -> fprintf f "%s" s
+  | EAsterisk    -> fprintf f "*"
 
 let rec pp_expr f = function
   | EPos a -> fprintf f "%a" pp_atomicexpr a
@@ -103,8 +111,12 @@ let pp_instr f = function
   | AssInstr i -> fprintf f "%a" pp_assinstr i
   | AlfInstr i -> fprintf f "%a" pp_alfinstr i
 
+let pp_symbol f = function
+  | SymLocal i  -> fprintf f "%dh" i
+  | SymString s -> fprintf f "%s" s
+
 let pp_line f = function
-  | SymDefInstr (s, i) -> fprintf f "%s %a" s pp_instr i
+  | SymDefInstr (s, i) -> fprintf f "%a %a" pp_symbol s pp_instr i
   | Instr i            -> fprintf f "%a" pp_instr i
 
 let pp_ast f t = List.iter (fun l -> fprintf f "%a\n" pp_line l) t
