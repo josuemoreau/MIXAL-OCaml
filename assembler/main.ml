@@ -33,6 +33,34 @@ let eval_symbol_loc line bindings sym =
       | ELocalSymB i | ELocalSymF i -> string_of_int i
       | _ -> assert (false))
 
+let eval_symbol_code line bindings sym =
+  try
+    match sym with
+    | ESym s -> let _, l = StringMap.find s bindings in List.hd l
+    | ELocalSymB i ->
+      let p, l = StringMap.find (string_of_int i ^ "h") bindings in
+      List.nth l (List.length l - p)
+    | ELocalSymF i ->
+      let p, l = StringMap.find (string_of_int i ^ "h") bindings in
+      List.nth l (List.length l - p - 1)
+    | _ -> assert (false)
+  with
+  | Not_found ->
+    failwith ("Symbol inconnu : " ^ match sym with
+      | ESym s -> s
+      | ELocalSymB i | ELocalSymF i -> string_of_int i
+      | _ -> assert (false))
+  | Invalid_argument _ ->
+    failwith ("Il n'y a pas de définition future du symbole : " ^ match sym with
+      | ESym s -> s
+      | ELocalSymB i | ELocalSymF i -> string_of_int i
+      | _ -> assert (false))
+  | Failure _ ->
+    failwith ("Il n'y a pas de définition précédente du symbole : " ^ match sym with
+      | ESym s -> s
+      | ELocalSymB i | ELocalSymF i -> string_of_int i
+      | _ -> assert (false))
+
 let rec eval_expr eval_symbol line bindings = function
   | EPos a -> eval_atomicexpr eval_symbol line bindings a
   | ENeg a -> - (eval_atomicexpr eval_symbol line bindings a)
