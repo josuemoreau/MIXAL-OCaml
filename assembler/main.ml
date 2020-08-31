@@ -1,6 +1,8 @@
 open Ast
 open Word
 open Format
+open Machine
+open Instr
 
 module StringMap = Map.Make(String)
 
@@ -109,27 +111,27 @@ let eval_fspec eval_symbol line bindings = function
 let parse_loc t =
   let end_loc_found = ref false in
   List.fold_left (fun (nbline, bindings) line ->
-      match line with
-      | SymDefInstr (sym, AssInstr i) when i.op = EQU ->
-        let word = Word.empty () in
-        eval_wval eval_symbol_loc word 0 bindings i.addr;
-        (nbline, bind_symbol sym (Word.to_int word) bindings)
-      | SymDefInstr (sym, AssInstr i) when i.op = ORIG ->
-        let word = Word.empty () in
-        eval_wval eval_symbol_loc word 0 bindings i.addr;
-        let addr = Word.to_int word in
-        (addr, bind_symbol sym nbline bindings)
-      | SymDefInstr (sym, _) ->
-        if !end_loc_found then failwith "Il ne peut pas y avoir d'instruction après END"
-        else (nbline + 1, bind_symbol sym nbline bindings)
-      | Instr (AssInstr i) when i.op = EQU -> (nbline, bindings)
-      | Instr (AssInstr i) when i.op = ORIG ->
-        let word = Word.empty () in
-        eval_wval eval_symbol_loc word 0 bindings i.addr;
-        (Word.to_int word, bindings)
-      | Instr _ ->
-        if !end_loc_found then failwith "Il ne peut pas y avoir d'instruction après END"
-        else (nbline + 1, bindings)
+      if !end_loc_found then failwith "Il ne peut pas y avoir d'instruction après END"
+      else
+        match line with
+        | SymDefInstr (sym, AssInstr i) when i.op = EQU ->
+          let word = Word.empty () in
+          eval_wval eval_symbol_loc word 0 bindings i.addr;
+          (nbline, bind_symbol sym (Word.to_int word) bindings)
+        | SymDefInstr (sym, AssInstr i) when i.op = ORIG ->
+          let word = Word.empty () in
+          eval_wval eval_symbol_loc word 0 bindings i.addr;
+          let addr = Word.to_int word in
+          (addr, bind_symbol sym nbline bindings)
+        | SymDefInstr (sym, _) ->
+          (nbline + 1, bind_symbol sym nbline bindings)
+        | Instr (AssInstr i) when i.op = EQU -> (nbline, bindings)
+        | Instr (AssInstr i) when i.op = ORIG ->
+          let word = Word.empty () in
+          eval_wval eval_symbol_loc word 0 bindings i.addr;
+          (Word.to_int word, bindings)
+        | Instr _ ->
+          (nbline + 1, bindings)
     ) (0, StringMap.empty) t
 
 let parse_literals t end_loc =
@@ -179,7 +181,9 @@ let incr_counter bindings sym =
 let eval_mixinstr eval_symbol line bindings (i : mix_instr) =
   let addr = AExpr (EPos (ENum (eval_addr eval_symbol line bindings i.addr))) in
   let index = IExpr (EPos (ENum (eval_index eval_symbol line bindings i.index))) in
-  let fspec = FExpr (EPos (ENum (eval_fspec eval_symbol line bindings i.fspec))) in
+  let fspec = match i.fspec with
+    | FEmpty -> FEmpty
+    | _ -> FExpr (EPos (ENum (eval_fspec eval_symbol line bindings i.fspec))) in
   {i with addr = addr; index = index; fspec = fspec}
 
 let eval_assinstr eval_symbol line bindings (i : ass_instr) =
@@ -248,11 +252,15 @@ let () =
       let nbline, bindings = parse_loc t in
       let end_loc = nbline - 1 in
       printf "\nEND LOCATION : %d@." end_loc;
-      printf "\nBINDINGS : %a@." pp_bindings bindings;
+      printf "\nBINDINGS :\n%a@." pp_bindings bindings;
       let inlined_literals = parse_literals t end_loc in
-      printf "\nAST INLINED LITERALS : %a@." pp_ast inlined_literals;
+      printf "\nAST INLINED LITERALS :\n%a@." pp_ast inlined_literals;
       let inlined_t = inline_symbols bindings inlined_literals in
-      printf "\nAST INLINED : %a@." pp_ast inlined_t
+      printf "\nAST INLINED :\n%a@." pp_ast inlined_t;
+      let mem = empty_memory () in
+      let start_loc = inlined_ast_to_memory mem inlined_t in
+      printf "MEMORY AFTER LOADING PROGRAM :\n%a@." pp_memory mem;
+      printf "STARTING LOCATION : %d@." start_loc
     with _ ->
       let p = lb.lex_curr_p in
       Format.printf "Error : line %d, column %d" p.pos_lnum (p.pos_cnum - p.pos_bol)

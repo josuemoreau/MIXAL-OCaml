@@ -1,6 +1,6 @@
 EXEC := assembler
 
-OBJ := op.cmx ast.cmx parser.cmx lexer.cmx word.cmx main.cmx
+OBJ := op.cmx ast.cmx parser.cmx lexer.cmx word.cmx machine.cmx instr.cmx main.cmx
 
 .PRECIOUS: %.cmi
 .DEFAULT_GOAL := $(EXEC)

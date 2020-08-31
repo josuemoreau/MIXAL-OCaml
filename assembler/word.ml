@@ -40,7 +40,7 @@ let base64 n =
   let rec aux acc n =
     if n < 64 then n :: acc
     else aux ((n mod 64) :: acc) (n / 64) in
-  let sign = n > 0 in
+  let sign = n >= 0 in
   (sign, aux [] (abs n))
 
 let set_word_part line word n fspec =
@@ -63,9 +63,10 @@ let to_int word =
   if get_sign word then aux 5
   else - (aux 5)
 
-let print w =
-  printf "%s " (if get_sign w then "+" else "-");
+let is_null w = w.sign && to_int w = 0
+
+let pp_word f w =
+  fprintf f "%s " (if get_sign w then "+" else "-");
   for i = 1 to 5 do
-    printf "%d " (get_byte w i)
-  done;
-  printf "@."
+    fprintf f "%2d " (get_byte w i)
+  done
