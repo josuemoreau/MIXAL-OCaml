@@ -1,8 +1,9 @@
 open Ast
 open Word
 open Format
-open Machine
+open Memory
 open Instr
+open Machine
 
 module StringMap = Map.Make(String)
 

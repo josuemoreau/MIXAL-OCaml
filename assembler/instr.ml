@@ -1,7 +1,7 @@
 open Op
 open Word
 open Ast
-open Machine
+open Memory
 
 let set_word_instr w op addr index fspec =
   set_word_part 0 w addr 2;
