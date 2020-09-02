@@ -23,12 +23,13 @@ $(EXEC): $(OBJ)
 	ocamlopt -c $<
 
 clean:
-	rm *.cmx
-	rm *.o
-	rm *.cmi
-	rm $(EXEC)
+	rm -f *.cmx
+	rm -f *.o
+	rm -f *.cmi
+	rm -f lexer.ml parser.mli parser.ml
+	rm -f $(EXEC)
 
-.depend:
+.depend: parser.mli parser.ml lexer.ml
 	ocamldep *.mli *.ml > .depend
 
 include .depend
