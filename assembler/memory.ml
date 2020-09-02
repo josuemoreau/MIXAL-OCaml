@@ -3,7 +3,7 @@ open Word
 
 type memory = word array
 
-let empty_memory () =
+let empty () =
   let a = Array.make 4000 (Word.empty ()) in
   for i = 1 to 3999 do
     a.(i) <- Word.empty ()

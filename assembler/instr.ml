@@ -118,39 +118,6 @@ let fill_empty_word_assinstr w (i: ass_instr) =
   | CON -> set_word_part 0 w v 5
   | _ -> assert (false)
 
-(* c is a lowercase letter, digit or symbol *)
-let char_to_int c =
-  match c with
-  | ' '  -> 0
-  | '.'  -> 40
-  | ','  -> 41
-  | '('  -> 42
-  | ')'  -> 43
-  | '+'  -> 44
-  | '-'  -> 45
-  | '*'  -> 46
-  | '/'  -> 47
-  | '='  -> 48
-  | '$'  -> 49
-  | '<'  -> 50
-  | '>'  -> 51
-  | '@'  -> 52
-  | ';'  -> 53
-  | ':'  -> 54
-  | '\'' -> 55
-  | _    ->
-    let n = int_of_char c in
-    if int_of_char 'a' <= n && n <= int_of_char 'i' then
-      1 + (n - int_of_char 'a')
-    else if int_of_char 'j' <= n && n <= int_of_char 'r' then
-      11 + (n - int_of_char 'j')
-    else if int_of_char 's' <= n && n <= int_of_char 'z' then
-      22 + (n - int_of_char 's')
-    else if int_of_char '0' <= n && n <= int_of_char '9' then
-      30 + (n - int_of_char '0')
-    else
-      failwith "Caractère inconnu dans la définition d'une constante alphanumérique."
-
 let fill_empty_word_alfinstr w (i: alf_instr) =
   let s = String.lowercase_ascii i.value in
   if String.length s <> 5 then
@@ -158,7 +125,7 @@ let fill_empty_word_alfinstr w (i: alf_instr) =
   else
     for j = 1 to 5 do
       let c = s.[j - 1] in
-      set_byte w j (char_to_int c)
+      set_byte w j (Char.to_int c)
     done
 
 let fill_empty_word_instr w (i: instr) =

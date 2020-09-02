@@ -4,6 +4,7 @@ open Format
 open Memory
 open Instr
 open Machine
+open Interp
 
 module StringMap = Map.Make(String)
 
@@ -243,27 +244,31 @@ let pp_intlist f l =
 let pp_bindings f b =
   StringMap.iter (fun k l -> fprintf f "%s = %a" k pp_intlist l) b
 
+exception ParsingError
+
 let () =
   if Array.length Sys.argv > 1 then begin
     let c = open_in Sys.argv.(1) in
     let lb = Lexing.from_channel c in
-    try
-      let t = Parser.main Lexer.lexer lb in
-      print_ast t;
-      let nbline, bindings = parse_loc t in
-      let end_loc = nbline - 1 in
-      printf "\nEND LOCATION : %d@." end_loc;
-      printf "\nBINDINGS :\n%a@." pp_bindings bindings;
-      let inlined_literals = parse_literals t end_loc in
-      printf "\nAST INLINED LITERALS :\n%a@." pp_ast inlined_literals;
-      let inlined_t = inline_symbols bindings inlined_literals in
-      printf "\nAST INLINED :\n%a@." pp_ast inlined_t;
-      let mem = empty_memory () in
-      let start_loc = inlined_ast_to_memory mem inlined_t in
-      printf "MEMORY AFTER LOADING PROGRAM :\n%a@." pp_memory mem;
-      printf "STARTING LOCATION : %d@." start_loc
-    with _ ->
-      let p = lb.lex_curr_p in
-      Format.printf "Error : line %d, column %d" p.pos_lnum (p.pos_cnum - p.pos_bol)
+    let t = try Parser.main Lexer.lexer lb
+      with _ ->
+        let p = lb.lex_curr_p in
+        Format.printf "Error : line %d, column %d" p.pos_lnum (p.pos_cnum - p.pos_bol);
+        raise ParsingError in
+    print_ast t;
+    let nbline, bindings = parse_loc t in
+    let end_loc = nbline - 1 in
+    printf "\nEND LOCATION : %d@." end_loc;
+    printf "\nBINDINGS :\n%a@." pp_bindings bindings;
+    let inlined_literals = parse_literals t end_loc in
+    printf "\nAST INLINED LITERALS :\n%a@." pp_ast inlined_literals;
+    let inlined_t = inline_symbols bindings inlined_literals in
+    printf "\nAST INLINED :\n%a@." pp_ast inlined_t;
+    let mem = Memory.empty () in
+    let start_loc = inlined_ast_to_memory mem inlined_t in
+    printf "MEMORY AFTER LOADING PROGRAM :\n%a@." pp_memory mem;
+    printf "STARTING LOCATION : %d@." start_loc;
+    let mach = Machine.init start_loc mem in
+    exec mach
   end else
     failwith "Argument non fourni"
