@@ -25,6 +25,46 @@ let get_byte w i = w.bytes.(i - 1)
 
 let set_byte w i v = w.bytes.(i - 1) <- v
 
+let base64 n =
+  let rec aux acc n =
+    if n < 64 then n :: acc
+    else aux ((n mod 64) :: acc) (n / 64) in
+  let sign = n >= 0 in
+  (sign, aux [] (abs n))
+
+let rec int_pow x n =
+  if n = 0 then 1
+  else
+    let y = int_pow x (n / 2) in
+    if n mod 2 = 0 then y * y
+    else y * y * x
+
+let set_zero word fspec =
+  let l, r = fspec / 8, fspec mod 8 in
+  if l = 0 then set_sign word true;
+  for i = max 1 l - 1 to r - 1 do
+    word.bytes.(i) <- 0
+  done
+
+let set_word_part line word n fspec =
+  (* if n >= word_size || n <= -word_size then raise Overflow; *)
+  set_zero word fspec;
+  let (sign, parts) = base64 n in
+  let size = List.length parts in
+  let l, r = fspec / 8, fspec mod 8 in
+  if 0 <= l && l <= 5 && l <= r && r <= 5 then begin
+    if l = 0 then set_sign word sign;
+    if r + 1 - (max l 1) >= size then
+      List.iteri (fun i x -> set_byte word (r - (size - 1 - i)) x) parts
+    else begin
+      let (_, parts) = base64 (n mod (int_pow 64 (r + 1 - max l 1))) in
+      let size = List.length parts in
+      List.iteri (fun i x -> set_byte word (r - (size - 1 - i)) x) parts;
+      raise Overflow
+    end
+  end else
+    failwith ("Mauvaise spécification F à la ligne " ^ string_of_int line)
+
 let set_sub w1 w2 l r =
   if l = 0 then w1.sign <- w2.sign;
   for i = max 1 l to r do
@@ -41,33 +81,21 @@ let set_sub2_f w1 w2 f =
   if l <= 4 && 4 <= r then w1.bytes.(3) <- w2.bytes.(3);
   if l <= 5 && 5 <= r then w1.bytes.(4) <- w2.bytes.(4)
 
-let set_sub_rightmost w1 w2 l r =
+let set_sub_shift w1 w2 l r =
   if l = 0 then w1.sign <- w2.sign;
-  let d = 5 - (r - l) in
-  for i = max 1 l to r do
-    w1.bytes.(d + i - 1) <- w2.bytes.(i - 1)
+  let l' = max 1 l in
+  let d = 5 - (r - l') in
+  for i = 1 to d - 1 do
+    set_byte w1 i 0
+  done;
+  for i = 0 to r - l' do
+    (* Format.printf "MOVE BYTE %d to %d@." (l' + i) (d + i); *)
+    set_byte w1 (d + i) (get_byte w2 (l' + i))
   done
 
-let base64 n =
-  let rec aux acc n =
-    if n < 64 then n :: acc
-    else aux ((n mod 64) :: acc) (n / 64) in
-  let sign = n >= 0 in
-  (sign, aux [] (abs n))
-
-let set_word_part line word n fspec =
-  if n >= word_size || n <= -word_size then raise Overflow;
-  let (sign, parts) = base64 n in
-  let size = List.length parts in
-  let l, r = fspec / 8, fspec mod 8 in
-  if 0 <= l && l <= 5 && l <= r && r <= 5 then begin
-    if l = 0 then set_sign word sign;
-    if r + 1 - (max l 1) >= size then
-      List.iteri (fun i x -> set_byte word (r - (size - 1 - i)) x) parts
-    else
-      failwith ("La spécification F est trop petite à la ligne " ^ string_of_int line)
-  end else
-    failwith ("Mauvaise spécification F à la ligne " ^ string_of_int line)
+let set_sub_shift_f w1 w2 f =
+  let l, r = f / 8, f mod 8 in
+  set_sub_shift w1 w2 l r
 
 let to_int word =
   let rec aux i =
@@ -90,6 +118,26 @@ let get_word_part word fspec =
   end else
     failwith ("Mauvaise spécification F")
 
+let get_word_part2 word fspec =
+  let l, r = fspec / 8, fspec mod 8 in
+  if 0 <= l && l <= 5 && l <= r && 4 <= r && r <= 5 then begin
+    let n = ref 0 in
+    for i = max 4 l to r do
+      n := 64 * !n + get_byte word i
+    done;
+    if l = 0 then
+      if get_sign word then !n
+      else (-1) * !n
+    else !n
+  end else
+    failwith ("Mauvaise spécification F")
+
+let to_int2 word =
+  (* let n = get_word_part word (4 * 8 + 5) in
+   * let sign = get_sign word in
+   * if sign then n
+   * else -n *)
+  get_word_part2 word 5
 
 let is_null w = w.sign && to_int w = 0
 

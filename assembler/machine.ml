@@ -5,13 +5,13 @@ open Memory
 type comp = LESS | EQUAL | GREATER
 
 type machine = {
-  memory : memory;
-  rI : word array;
-  rJ : word;
-  rA : word;
-  rX : word;
-  mutable overflow : bool;
-  mutable comparison : comp;
+          memory      : memory;
+          rI          : word array;
+          rJ          : word;
+          rA          : word;
+          rX          : word;
+  mutable overflow    : bool;
+  mutable comp        : comp;
   mutable loc_pointer : int
 }
 
@@ -23,13 +23,13 @@ let init_rI () =
   a
 
 let init start_loc mem = {
-  memory = mem;
-  rI = init_rI ();
-  rJ = Word.empty ();
-  rA = Word.empty ();
-  rX = Word.empty ();
-  overflow = false;
-  comparison = EQUAL;
+  memory      = mem;
+  rI          = init_rI ();
+  rJ          = Word.empty ();
+  rA          = Word.empty ();
+  rX          = Word.empty ();
+  overflow    = false;
+  comp        = EQUAL;
   loc_pointer = start_loc
 }
 
@@ -41,9 +41,17 @@ let next_word mach = mach.memory.(mach.loc_pointer)
 let get_rI mach i = mach.rI.(i - 1)
 let get_int_rI mach i = get_word_part mach.rI.(i - 1) 5
 
-let ld_rA mach m f = set_sub_f mach.rA mach.memory.(m) f
-let ld_rI mach i m f = set_sub2_f (get_rI mach i) mach.memory.(m) f
-let ld_rX mach m f = set_sub_f mach.rX mach.memory.(m) f
+let add mach m f =
+  let v1 = get_word_part mach.rA 5 in
+  let v2 = get_word_part mach.memory.(m) f in
+  try
+    set_word_part 0 mach.rA (v1 + v2) 5
+  with Overflow ->
+    mach.overflow <- true
+
+let ld_rA mach m f = set_sub_shift_f mach.rA mach.memory.(m) f
+let ld_rI mach i m f = set_sub_shift_f (get_rI mach i) mach.memory.(m) f
+let ld_rX mach m f = set_sub_shift_f mach.rX mach.memory.(m) f
 
 let ldn dest src f =
   set_sub_f dest src f;
@@ -55,6 +63,10 @@ let ldn_rI mach i m f =
   ld_rI mach i m f;
   let sign = get_sign mach.memory.(m) in
   set_sign (get_rI mach i) (not sign)
+
+let st_rA mach m f = set_sub_f mach.memory.(m) mach.rA f
+let st_rI mach i m f = set_sub2_f mach.memory.(m) (get_rI mach i) f
+let st_rX mach m f = set_sub_f mach.memory.(m) mach.rX f
 
 let ent dest sign m =
   if m = 0 then set_sign dest sign;
@@ -82,3 +94,42 @@ let inc_rX mach m = inc mach.rX m
 let dec_rA mach m = inc_rA mach (-m)
 let dec_rI mach i m = inc_rI mach i (-m)
 let dec_rX mach m = inc mach.rX (-m)
+
+let is_z src = to_int src = 0
+let is_p src = to_int src > 0
+let is_n src = to_int src < 0
+let is_nz src = to_int src <> 0
+let is_np src = to_int src <= 0
+let is_nn src = to_int src >= 0
+
+let is2_z src = to_int2 src = 0
+let is2_p src = to_int2 src > 0
+let is2_n src = to_int2 src < 0
+let is2_nz src = to_int2 src <> 0
+let is2_np src = to_int2 src <= 0
+let is2_nn src = to_int2 src >= 0
+
+let j_rA mach m comp =
+  if comp mach.rA then m
+  else mach.loc_pointer + 1
+let j_rI mach i m comp =
+  if comp mach.rI.(i) then m
+  else mach.loc_pointer + 1
+let j_rX mach m comp =
+  if comp mach.rX then m
+  else mach.loc_pointer + 1
+
+let cmp mach w1 w2 f =
+  let v1 = get_word_part w1 f in
+  let v2 = get_word_part w2 f in
+  if v1 < v2 then mach.comp <- LESS
+  else if v1 = v2 then mach.comp <- EQUAL
+  else mach.comp <- GREATER
+let cmp_rA mach m f = cmp mach mach.rA mach.memory.(m) f
+let cmp_rI mach i m f =
+  let v1 = get_word_part2 mach.rI.(i) f in
+  let v2 = get_word_part2 mach.memory.(m) f in
+  if v1 < v2 then mach.comp <- LESS
+  else if v1 = v2 then mach.comp <- EQUAL
+  else mach.comp <- GREATER
+let cmp_rX mach m f = cmp mach mach.rX mach.memory.(m) f
