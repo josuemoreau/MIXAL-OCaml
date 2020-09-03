@@ -49,6 +49,25 @@ let add mach m f =
   with Overflow ->
     mach.overflow <- true
 
+let sub mach m f = add mach (-m) f
+
+let mul mach m f =
+  let v1 = get_word_part mach.rA 5 in
+  let v2 = get_word_part mach.memory.(m) f in
+  let prod = v1 * v2 in
+  let sign = if prod >= 0 then 1 else -1 in
+  let abs_prod = abs prod in
+  let rA_val = abs_prod / word_size in
+  let rX_val = abs_prod mod word_size in
+  let rA_val' =
+    if rA_val < word_size then rA_val
+    else begin
+      mach.overflow <- true;
+      rA_val mod word_size
+    end in
+  set_word_part 0 mach.rA (sign * rA_val') 5;
+  set_word_part 0 mach.rX (sign * rX_val) 5
+
 let ld_rA mach m f = set_sub_shift_f mach.rA mach.memory.(m) f
 let ld_rI mach i m f = set_sub_shift_f (get_rI mach i) mach.memory.(m) f
 let ld_rX mach m f = set_sub_shift_f mach.rX mach.memory.(m) f

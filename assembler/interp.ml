@@ -58,6 +58,8 @@ let exec_instr mach =
     begin match c with
       | 0  -> ()
       | 1  -> add mach m f
+      | 2  -> sub mach m f
+      | 3  -> mul mach m f
       | 5  ->
         begin match f with
           | 0 -> ()
