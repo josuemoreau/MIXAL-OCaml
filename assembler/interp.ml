@@ -68,6 +68,16 @@ let exec_instr mach =
           | 2 -> raise End
           | _ -> invalid_fspec f
         end
+      | 6  ->
+        begin match f with
+          | 0 -> sla mach m
+          | 1 -> sra mach m
+          | 2 -> slax mach m
+          | 3 -> srax mach m
+          | 4 -> slc mach m
+          | 5 -> src mach m
+          | _ -> invalid_fspec f
+        end
       | 8  -> ld_rA mach m f
       | 15 -> ld_rX mach m f
       | 16 -> ldn_rA mach m f

@@ -167,3 +167,97 @@ let cmp_rI mach i m f =
   else if v1 = v2 then mach.comp <- EQUAL
   else mach.comp <- GREATER
 let cmp_rX mach m f = cmp mach mach.rX mach.memory.(m) f
+
+let sla mach m =
+  if m >= 5 then set_zero mach.rA 5
+  else begin
+    for i = 1 to 5 - m do
+      set_byte mach.rA i (get_byte mach.rA (m + i))
+    done;
+    for i = 5 - m + 1 to 5 do
+      set_byte mach.rA i 0
+    done
+  end
+
+let sra mach m =
+  if m >= 5 then set_zero mach.rA 5
+  else begin
+    for i = 5 downto m + 1 do
+      set_byte mach.rA i (get_byte mach.rA (i - m))
+    done;
+    for i = 1 to m do
+      set_byte mach.rA i 0
+    done
+  end
+
+let slax mach m =
+  if m >= 10 then begin set_zero mach.rA 5; set_zero mach.rX 5 end
+  else begin
+    let set i v =
+      if 1 <= i && i <= 5 then set_byte mach.rA i v
+      else set_byte mach.rX (i - 5) v in
+    let get i =
+      if 1 <= i && i <= 5 then get_byte mach.rA i
+      else get_byte mach.rX (i - 5) in
+    for i = 1 to 10 - m do
+      set i (get (m + i))
+    done;
+    for i = 10 - m + 1 to 10 do
+      set i 0
+    done
+  end
+
+let srax mach m =
+  if m >= 10 then begin set_zero mach.rA 5; set_zero mach.rX 5 end
+  else begin
+    let set i v =
+      if 1 <= i && i <= 5 then set_byte mach.rA i v
+      else set_byte mach.rX (i - 5) v in
+    let get i =
+      if 1 <= i && i <= 5 then get_byte mach.rA i
+      else get_byte mach.rX (i - 5) in
+    for i = 10 downto m + 1 do
+      set i (get (i - m))
+    done;
+    for i = 1 to m do
+      set i 0
+    done
+  end
+
+let slc mach m =
+  let m = m mod 10 in
+  let temp_rA = Word.empty () in
+  let temp_rX = Word.empty () in
+  let set i v =
+    if 1 <= i && i <= 5 then set_byte temp_rA i v
+    else set_byte temp_rX (i - 5) v in
+  let get i =
+    if 1 <= i && i <= 5 then get_byte mach.rA i
+    else get_byte mach.rX (i - 5) in
+  for i = 1 to 10 do
+    let j = ((i + m - 1) mod 10) + 1 in
+    set i (get j)
+  done;
+  for i = 1 to 5 do
+    set_byte mach.rA i (get_byte temp_rA i);
+    set_byte mach.rX i (get_byte temp_rX i)
+  done
+
+let src mach m =
+  let m = m mod 10 in
+  let temp_rA = Word.empty () in
+  let temp_rX = Word.empty () in
+  let set i v =
+    if 1 <= i && i <= 5 then set_byte temp_rA i v
+    else set_byte temp_rX (i - 5) v in
+  let get i =
+    if 1 <= i && i <= 5 then get_byte mach.rA i
+    else get_byte mach.rX (i - 5) in
+  for i = 1 to 10 do
+    let j = ((10 + i - m - 1) mod 10) + 1 in
+    set i (get j)
+  done;
+  for i = 1 to 5 do
+    set_byte mach.rA i (get_byte temp_rA i);
+    set_byte mach.rX i (get_byte temp_rX i)
+  done
