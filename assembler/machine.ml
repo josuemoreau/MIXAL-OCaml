@@ -68,6 +68,21 @@ let mul mach m f =
   set_word_part 0 mach.rA (sign * rA_val') 5;
   set_word_part 0 mach.rX (sign * rX_val) 5
 
+let div mach m f =
+  let vA = abs (to_int mach.rA) in
+  let vX = abs (to_int mach.rX) in
+  let v1 = (if get_sign mach.rA then 1 else -1) * (vA * word_size + vX) in
+  let v2 = get_word_part mach.memory.(m) f in
+  let q = v1 / v2 in
+  let r = v1 mod v2 in
+  if abs q >= word_size then mach.overflow <- true
+  else begin
+    set_word_part 0 mach.rA q 5;
+    set_word_part 0 mach.rX r 5
+  end
+
+
+
 let ld_rA mach m f = set_sub_shift_f mach.rA mach.memory.(m) f
 let ld_rI mach i m f = set_sub_shift_f (get_rI mach i) mach.memory.(m) f
 let ld_rX mach m f = set_sub_shift_f mach.rX mach.memory.(m) f

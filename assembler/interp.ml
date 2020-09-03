@@ -60,6 +60,7 @@ let exec_instr mach =
       | 1  -> add mach m f
       | 2  -> sub mach m f
       | 3  -> mul mach m f
+      | 4  -> div mach m f
       | 5  ->
         begin match f with
           | 0 -> ()
@@ -100,7 +101,7 @@ let exec_instr mach =
 
 let exec mach =
   try
-    for i = 1 to 10 do
+    for i = 1 to 14 do
       exec_instr mach
     done
   with End -> printf "END OF PROGRAM"
