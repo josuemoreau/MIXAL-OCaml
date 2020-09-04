@@ -39,7 +39,7 @@ let exec_instr mach =
     else if 1 <= index && index <= 6 then addr + get_int_rI mach index
     else failwith ("Le champ I a une valeur invalide : " ^ string_of_int index) in
   let next_loc = ref (1 + get_loc_pointer mach) in
-  printf "INSTR : C = %2d ; M = %4d ; I = %d ; F = %2d@." c m index f;
+  printf "%d - INSTR : C = %2d ; M = %4d ; I = %d ; F = %2d@." mach.loc_pointer c m index f;
   if 9 <= c && c <= 14 then ld_rI mach (c - 8) m f
   else if 17 <= c && c <= 22 then ldn_rI mach (c - 16) m f
   else if 25 <= c && c <= 30 then st_rI mach (c - 24) m f
@@ -85,6 +85,20 @@ let exec_instr mach =
       | 24 -> st_rA mach m f
       | 31 -> st_rX mach m f
       | 35 -> ioc mach f m
+      | 39 ->
+        begin match f with
+          | 0 -> next_loc := jmp mach m
+          | 1 -> next_loc := jsj mach m
+          | 2 -> next_loc := jov mach m
+          | 3 -> next_loc := jnov mach m
+          | 4 -> next_loc := jl mach m
+          | 5 -> next_loc := je mach m
+          | 6 -> next_loc := jg mach m
+          | 7 -> next_loc := jge mach m
+          | 8 -> next_loc := jne mach m
+          | 9 -> next_loc := jle mach m
+          | _ -> invalid_fspec f
+        end
       | 40 -> next_loc := (j_rA mach m (f_to_comp f))
       | 47 -> next_loc := (j_rX mach m (f_to_comp f))
       | 48 ->
@@ -111,7 +125,7 @@ let exec_instr mach =
 
 let exec mach =
   try
-    for i = 1 to 14 do
+    for i = 1 to 22 do
       exec_instr mach
     done
   with End -> printf "END OF PROGRAM"

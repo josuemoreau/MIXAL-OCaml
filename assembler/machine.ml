@@ -2,17 +2,17 @@ open Format
 open Word
 open Memory
 
-type comp = LESS | EQUAL | GREATER
-
 type machine = {
-          memory      : memory;
-          rI          : word array;
-          rJ          : word;
-          rA          : word;
-          rX          : word;
-  mutable overflow    : bool;
-  mutable comp        : comp;
-  mutable loc_pointer : int
+          memory       : memory;
+          rI           : word array;
+          rJ           : word;
+          rA           : word;
+          rX           : word;
+  mutable overflow     : bool;
+  mutable comp_less    : bool;
+  mutable comp_equal   : bool;
+  mutable comp_greater : bool;
+  mutable loc_pointer  : int
 }
 
 let init_rI () =
@@ -23,14 +23,16 @@ let init_rI () =
   a
 
 let init start_loc mem = {
-  memory      = mem;
-  rI          = init_rI ();
-  rJ          = Word.empty ();
-  rA          = Word.empty ();
-  rX          = Word.empty ();
-  overflow    = false;
-  comp        = EQUAL;
-  loc_pointer = start_loc
+  memory       = mem;
+  rI           = init_rI ();
+  rJ           = Word.empty ();
+  rA           = Word.empty ();
+  rX           = Word.empty ();
+  overflow     = false;
+  comp_equal   = false;
+  comp_less    = false;
+  comp_greater = false;
+  loc_pointer  = start_loc
 }
 
 let mem mach i = mach.memory.(i)
@@ -143,29 +145,46 @@ let is2_nz src = to_int2 src <> 0
 let is2_np src = to_int2 src <= 0
 let is2_nn src = to_int2 src >= 0
 
+let jmp mach m =
+  set_word_part 0 mach.rJ (mach.loc_pointer + 1) 5;
+  m
+let jsj mach m = m
+
 let j_rA mach m comp =
-  if comp mach.rA then m
+  if comp mach.rA then jmp mach m
   else mach.loc_pointer + 1
 let j_rI mach i m comp =
-  if comp mach.rI.(i) then m
+  if comp mach.rI.(i) then jmp mach m
   else mach.loc_pointer + 1
 let j_rX mach m comp =
-  if comp mach.rX then m
+  if comp mach.rX then jmp mach m
   else mach.loc_pointer + 1
+
+let j_cond mach m cond =
+  if cond then jmp mach m
+  else mach.loc_pointer + 1
+let jov mach m = j_cond mach m mach.overflow
+let jnov mach m = j_cond mach m (not mach.overflow)
+let jl mach m = j_cond mach m mach.comp_less
+let je mach m = j_cond mach m mach.comp_equal
+let jg mach m = j_cond mach m mach.comp_greater
+let jge mach m = j_cond mach m (mach.comp_greater || mach.comp_equal)
+let jne mach m = j_cond mach m (mach.comp_greater || mach.comp_less)
+let jle mach m = j_cond mach m (mach.comp_less || mach.comp_equal)
 
 let cmp mach w1 w2 f =
   let v1 = get_word_part w1 f in
   let v2 = get_word_part w2 f in
-  if v1 < v2 then mach.comp <- LESS
-  else if v1 = v2 then mach.comp <- EQUAL
-  else mach.comp <- GREATER
+  if v1 < v2 then mach.comp_less <- true
+  else if v1 = v2 then mach.comp_equal <- true
+  else mach.comp_greater <- true
 let cmp_rA mach m f = cmp mach mach.rA mach.memory.(m) f
 let cmp_rI mach i m f =
   let v1 = get_word_part2 mach.rI.(i) f in
   let v2 = get_word_part2 mach.memory.(m) f in
-  if v1 < v2 then mach.comp <- LESS
-  else if v1 = v2 then mach.comp <- EQUAL
-  else mach.comp <- GREATER
+  if v1 < v2 then mach.comp_less <- true
+  else if v1 = v2 then mach.comp_equal <- true
+  else mach.comp_greater <- true
 let cmp_rX mach m f = cmp mach mach.rX mach.memory.(m) f
 
 let sla mach m =
@@ -261,3 +280,5 @@ let src mach m =
     set_byte mach.rA i (get_byte temp_rA i);
     set_byte mach.rX i (get_byte temp_rX i)
   done
+
+(* à implémenter pour l'exemple des 500 primes : OUT, CHAR *)
