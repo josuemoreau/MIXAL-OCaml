@@ -13,11 +13,13 @@ let block_size device =
 
 let ioc mach device m = ()
 
-let out f mach device m =
+let pp_device_block f (mach, device, m) =
   let bs = block_size device in
   for i = 0 to bs - 1 do
     let w = Machine.mem mach (m + i) in
     for j = 1 to 5 do
-      fprintf f "%c" (char_of_int (get_byte w j))
+      fprintf f "%c" (Char.of_int (get_byte w j))
     done
   done
+
+let out mach device m = printf "%a@." pp_device_block (mach, device, m)

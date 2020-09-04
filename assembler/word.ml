@@ -25,6 +25,12 @@ let get_byte w i = w.bytes.(i - 1)
 
 let set_byte w i v = w.bytes.(i - 1) <- v
 
+let pp_word f w =
+  fprintf f "%s " (if get_sign w then "+" else "-");
+  for i = 1 to 5 do
+    fprintf f "%2d " (get_byte w i)
+  done
+
 let base64 n =
   let rec aux acc n =
     if n < 64 then n :: acc
@@ -65,9 +71,16 @@ let set_word_part line word n fspec =
   end else
     failwith ("Mauvaise spécification F à la ligne " ^ string_of_int line)
 
+let set_word_part2 line word n =
+  set_sign word (n >= 0);
+  set_word_part line word n (4 * 8 + 5)
+
 let set_sub w1 w2 l r =
+  printf "%a@." pp_word w1;
+  printf "%a@." pp_word w2;
   if l = 0 then w1.sign <- w2.sign;
   for i = max 1 l to r do
+    printf "COPY %d FROM %d to %d@." w2.bytes.(i - 1) (i - 1) (i - 1);
     w1.bytes.(i - 1) <- w2.bytes.(i - 1)
   done
 
@@ -89,9 +102,23 @@ let set_sub_shift w1 w2 l r =
     set_byte w1 i 0
   done;
   for i = 0 to r - l' do
-    (* Format.printf "MOVE BYTE %d to %d@." (l' + i) (d + i); *)
     set_byte w1 (d + i) (get_byte w2 (l' + i))
   done
+
+let set_sub_shift_bis w1 w2 l r =
+  if l = 0 then w1.sign <- w2.sign;
+  let l' = max 1 l in
+  let d = 5 - (r - l') in
+  for i = 1 to d - 1 do
+    set_byte w1 i 0
+  done;
+  for i = 0 to r - l' do
+    set_byte w1 (l' + i) (get_byte w2 (d + i))
+  done
+
+let set_sub_shift_bis_f w1 w2 f =
+  let l, r = f / 8, f mod 8 in
+  set_sub_shift_bis w1 w2 l r
 
 let set_sub_shift_f w1 w2 f =
   let l, r = f / 8, f mod 8 in
@@ -140,12 +167,6 @@ let to_int2 word =
   get_word_part2 word 5
 
 let is_null w = w.sign && to_int w = 0
-
-let pp_word f w =
-  fprintf f "%s " (if get_sign w then "+" else "-");
-  for i = 1 to 5 do
-    fprintf f "%2d " (get_byte w i)
-  done
 
 (* let inc w d =
  *   let i = ref 5 in

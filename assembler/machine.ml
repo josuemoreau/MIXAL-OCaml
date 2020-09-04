@@ -83,7 +83,18 @@ let div mach m f =
     set_word_part 0 mach.rX r 5
   end
 
-
+let char mach =
+  let n = ref (to_int mach.rA) in
+  for i = 5 downto 1 do
+    let r = !n mod 10 in
+    set_byte mach.rX i (30 + r);
+    n := !n / 10
+  done;
+  for i = 5 downto 1 do
+    let r = !n mod 10 in
+    set_byte mach.rA i (30 + r);
+    n := !n / 10
+  done
 
 let ld_rA mach m f = set_sub_shift_f mach.rA mach.memory.(m) f
 let ld_rI mach i m f = set_sub_shift_f (get_rI mach i) mach.memory.(m) f
@@ -102,17 +113,18 @@ let ldn_rI mach i m f =
 
 let st_rA mach m f = set_sub_f mach.memory.(m) mach.rA f
 let st_rI mach i m f = set_sub2_f mach.memory.(m) (get_rI mach i) f
-let st_rX mach m f = set_sub_f mach.memory.(m) mach.rX f
+let st_rX mach m f = set_sub_shift_bis_f mach.memory.(m) mach.rX f
 
 let ent dest sign m =
-  if m = 0 then set_sign dest sign;
+  if m = 0 then set_sign dest sign
+  else set_sign dest (m >= 0);
   set_word_part 0 dest m 5
 let ent_rA mach sign m = ent mach.rA sign m
 let ent_rI mach i sign m =
   let rI = get_rI mach i in
-  if m = 0 then set_sign rI sign;
-  set_word_part 0 rI m (4 * 8 + 5)
-let ent_rX mach sign m = ent mach.rA sign m
+  set_word_part2 0 rI m;
+  if m = 0 then set_sign rI sign
+let ent_rX mach sign m = ent mach.rX sign m
 
 let enn_rA mach sign m = ent_rA mach sign (-m)
 let enn_rI mach i sign m = ent_rI mach i sign (-m)
@@ -124,7 +136,7 @@ let inc dest d =
 let inc_rA mach m = inc mach.rA m
 let inc_rI mach i m =
   let n = get_int_rI mach i in
-  set_word_part 0 (get_rI mach i) (n + m) (4 * 8 + 5)
+  set_word_part2 0 (get_rI mach i) (n + m)
 let inc_rX mach m = inc mach.rX m
 
 let dec_rA mach m = inc_rA mach (-m)
@@ -154,7 +166,7 @@ let j_rA mach m comp =
   if comp mach.rA then jmp mach m
   else mach.loc_pointer + 1
 let j_rI mach i m comp =
-  if comp mach.rI.(i) then jmp mach m
+  if comp (get_rI mach i) then jmp mach m
   else mach.loc_pointer + 1
 let j_rX mach m comp =
   if comp mach.rX then jmp mach m
@@ -175,16 +187,18 @@ let jle mach m = j_cond mach m (mach.comp_less || mach.comp_equal)
 let cmp mach w1 w2 f =
   let v1 = get_word_part w1 f in
   let v2 = get_word_part w2 f in
-  if v1 < v2 then mach.comp_less <- true
-  else if v1 = v2 then mach.comp_equal <- true
-  else mach.comp_greater <- true
+  (* Format.printf "============================\n\n\n\n\nCMPA : %d %d@." v1 v2; *)
+  if v1 < v2 then begin mach.comp_less <- true; mach.comp_equal <- false; mach.comp_greater <- false end
+  else if v1 = v2 then begin mach.comp_equal <- true; mach.comp_less <- false; mach.comp_greater <- false end
+  else begin mach.comp_greater <- true; mach.comp_less <- false; mach.comp_equal <- false end
 let cmp_rA mach m f = cmp mach mach.rA mach.memory.(m) f
 let cmp_rI mach i m f =
-  let v1 = get_word_part2 mach.rI.(i) f in
+  let v1 = get_word_part2 (get_rI mach i) f in
   let v2 = get_word_part2 mach.memory.(m) f in
-  if v1 < v2 then mach.comp_less <- true
-  else if v1 = v2 then mach.comp_equal <- true
-  else mach.comp_greater <- true
+  (* Format.printf "============================\n\n\n\n\nCMP%d : %d %d@." i v1 v2; *)
+  if v1 < v2 then begin mach.comp_less <- true; mach.comp_equal <- false; mach.comp_greater <- false end
+  else if v1 = v2 then begin mach.comp_equal <- true; mach.comp_less <- false; mach.comp_greater <- false end
+  else begin mach.comp_greater <- true; mach.comp_less <- false; mach.comp_equal <- false end
 let cmp_rX mach m f = cmp mach mach.rX mach.memory.(m) f
 
 let sla mach m =

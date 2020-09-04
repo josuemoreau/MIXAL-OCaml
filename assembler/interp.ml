@@ -39,7 +39,7 @@ let exec_instr mach =
     else if 1 <= index && index <= 6 then addr + get_int_rI mach index
     else failwith ("Le champ I a une valeur invalide : " ^ string_of_int index) in
   let next_loc = ref (1 + get_loc_pointer mach) in
-  printf "%d - INSTR : C = %2d ; M = %4d ; I = %d ; F = %2d@." mach.loc_pointer c m index f;
+  (* printf "%d - INSTR : C = %2d ; M = %4d ; I = %d ; F = %2d@." mach.loc_pointer c m index f; *)
   if 9 <= c && c <= 14 then ld_rI mach (c - 8) m f
   else if 17 <= c && c <= 22 then ldn_rI mach (c - 16) m f
   else if 25 <= c && c <= 30 then st_rI mach (c - 24) m f
@@ -53,7 +53,7 @@ let exec_instr mach =
       | 3 -> enn_rI mach (c - 48) sign m
       | _ -> invalid_fspec f
     end
-  else if 56 <= c && c <= 62 then cmp_rI mach (c - 55) m f
+  else if 57 <= c && c <= 62 then cmp_rI mach (c - 56) m f
   else
     begin match c with
       | 0  -> ()
@@ -64,7 +64,7 @@ let exec_instr mach =
       | 5  ->
         begin match f with
           | 0 -> ()
-          | 1 -> ()
+          | 1 -> char mach
           | 2 -> raise End
           | _ -> invalid_fspec f
         end
@@ -85,6 +85,7 @@ let exec_instr mach =
       | 24 -> st_rA mach m f
       | 31 -> st_rX mach m f
       | 35 -> ioc mach f m
+      | 37 -> out mach f m
       | 39 ->
         begin match f with
           | 0 -> next_loc := jmp mach m
@@ -123,9 +124,34 @@ let exec_instr mach =
     end;
   set_loc_pointer mach !next_loc
 
+let pp_registers f mach =
+  fprintf f "A  = %4d  X   = %4d\n" (to_int mach.rA) (to_int mach.rX);
+  fprintf f "I1 = %4d  I2  = %4d  I3  = %4d\n"
+    (to_int2 mach.rI.(0)) (to_int2 mach.rI.(1)) (to_int2 mach.rI.(2));
+  fprintf f "I4 = %4d  I5  = %4d  I6  = %4d\n"
+    (to_int2 mach.rI.(3)) (to_int2 mach.rI.(4)) (to_int2 mach.rI.(5));
+  fprintf f "J  = %4d" (to_int mach.rJ)
+
+let pp_bool f b = if b then fprintf f "true" else fprintf f "false"
+
+let pp_indicators f mach =
+  fprintf f "Overflow = %a\n" pp_bool mach.overflow;
+  fprintf f "LESS = %a  EQUAL = %a  GREATER = %a"
+    pp_bool mach.comp_less pp_bool mach.comp_equal pp_bool mach.comp_greater
+
 let exec mach =
   try
-    for i = 1 to 22 do
-      exec_instr mach
+    for i = 1 to 100000 do
+      (* while true do *)
+      (* if !step then ignore (read_line ()); *)
+      exec_instr mach;
+      (* printf "%a@." pp_registers mach;
+       * printf "%a@." pp_indicators mach;
+       * printf "---------------------------------------------------------------@." *)
+      (* printf "%a" Memory.pp_memory mach.memory *)
     done
-  with End -> printf "END OF PROGRAM"
+  with
+  | End ->
+    (* printf "%a@." Memory.pp_memory mach.memory; *)
+    printf "END OF PROGRAM"
+  | Overflow -> printf "%a@." Memory.pp_memory mach.memory
