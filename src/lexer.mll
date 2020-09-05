@@ -46,7 +46,7 @@ let whitespaces = [' ' '\t' '\n']
 let symbols = "+"|"-"|"*"|"/"|"//"|"="|","|"("|")"|":"
 
 rule lexer = parse
-  | [' ' '\t']* '*' [^'\n']* '\n' {
+  | [' ' '\t']* "**" [^'\n']* '\n' {
       Lexing.new_line lexbuf; lexer lexbuf
     }
   | whitespaces* '\n' whitespaces* {
