@@ -41,7 +41,10 @@ let set_loc_pointer mach loc = mach.loc_pointer <- loc
 let next_word mach = mach.memory.(mach.loc_pointer)
 
 let get_rI mach i = mach.rI.(i - 1)
+
+let get_int_rA mach = to_int mach.rA
 let get_int_rI mach i = get_word_part mach.rI.(i - 1) 5
+let get_int_rX mach = to_int mach.rX
 
 let add mach m f =
   let v1 = get_word_part mach.rA 5 in
@@ -309,4 +312,19 @@ let src mach m =
     set_byte mach.rX i (get_byte temp_rX i)
   done
 
-(* à implémenter pour l'exemple des 500 primes : OUT, CHAR *)
+let pp_registers f mach =
+  fprintf f "A  = %4d  X   = %4d\n" (to_int mach.rA) (to_int mach.rX);
+  fprintf f "I1 = %4d  I2  = %4d  I3  = %4d\n"
+    (to_int2 mach.rI.(0)) (to_int2 mach.rI.(1)) (to_int2 mach.rI.(2));
+  fprintf f "I4 = %4d  I5  = %4d  I6  = %4d\n"
+    (to_int2 mach.rI.(3)) (to_int2 mach.rI.(4)) (to_int2 mach.rI.(5));
+  fprintf f "J  = %4d" (to_int mach.rJ)
+
+let pp_bool f b = if b then fprintf f "true" else fprintf f "false"
+
+let pp_indicators f mach =
+  fprintf f "Overflow = %a\n" pp_bool mach.overflow;
+  fprintf f "LESS = %a  EQUAL = %a  GREATER = %a"
+    pp_bool mach.comp_less pp_bool mach.comp_equal pp_bool mach.comp_greater
+
+let pp_memory f mach = Memory.pp_memory f mach.memory

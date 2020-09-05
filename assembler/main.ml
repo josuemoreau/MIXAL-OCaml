@@ -266,7 +266,7 @@ let () =
     printf "\nAST INLINED :\n%a@." pp_ast inlined_t;
     let mem = Memory.empty () in
     let start_loc = inlined_ast_to_memory mem inlined_t in
-    printf "MEMORY AFTER LOADING PROGRAM :\n%a@." pp_memory mem;
+    printf "MEMORY AFTER LOADING PROGRAM :\n%a@." Memory.pp_memory mem;
     printf "STARTING LOCATION : %d@." start_loc;
     let mach = Machine.init start_loc mem in
     exec mach

@@ -129,21 +129,6 @@ let exec_instr mach =
     end;
   set_loc_pointer mach !next_loc
 
-let pp_registers f mach =
-  fprintf f "A  = %4d  X   = %4d\n" (to_int mach.rA) (to_int mach.rX);
-  fprintf f "I1 = %4d  I2  = %4d  I3  = %4d\n"
-    (to_int2 mach.rI.(0)) (to_int2 mach.rI.(1)) (to_int2 mach.rI.(2));
-  fprintf f "I4 = %4d  I5  = %4d  I6  = %4d\n"
-    (to_int2 mach.rI.(3)) (to_int2 mach.rI.(4)) (to_int2 mach.rI.(5));
-  fprintf f "J  = %4d" (to_int mach.rJ)
-
-let pp_bool f b = if b then fprintf f "true" else fprintf f "false"
-
-let pp_indicators f mach =
-  fprintf f "Overflow = %a\n" pp_bool mach.overflow;
-  fprintf f "LESS = %a  EQUAL = %a  GREATER = %a"
-    pp_bool mach.comp_less pp_bool mach.comp_equal pp_bool mach.comp_greater
-
 let exec mach =
   try
     while true do
@@ -158,4 +143,4 @@ let exec mach =
   | End ->
     (* printf "%a@." Memory.pp_memory mach.memory; *)
     printf "END OF PROGRAM"
-  | Overflow -> printf "%a@." Memory.pp_memory mach.memory
+  | Overflow -> printf "%a@." Machine.pp_memory mach
