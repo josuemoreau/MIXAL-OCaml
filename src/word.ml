@@ -76,11 +76,8 @@ let set_word_part2 line word n =
   set_word_part line word n (4 * 8 + 5)
 
 let set_sub w1 w2 l r =
-  printf "%a@." pp_word w1;
-  printf "%a@." pp_word w2;
   if l = 0 then w1.sign <- w2.sign;
   for i = max 1 l to r do
-    printf "COPY %d FROM %d to %d@." w2.bytes.(i - 1) (i - 1) (i - 1);
     w1.bytes.(i - 1) <- w2.bytes.(i - 1)
   done
 
