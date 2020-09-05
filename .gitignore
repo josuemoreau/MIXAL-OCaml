@@ -31,9 +31,9 @@ _opam/
 # Depend file
 .depend
 
-assembler/assembler
-assembler/lexer.ml
-assembler/parser.ml
-assembler/parser.mli
-assembler/parser.automaton
-assembler/parser.conflicts
+mixint
+lexer.ml
+parser.ml
+parser.mli
+parser.automaton
+parser.conflicts
