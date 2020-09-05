@@ -74,7 +74,7 @@ rule lexer = parse
   | (digits as i) ['H' 'h'] { LOCALSYMDEF (int_of_digit i)     }
   | (digits as i) ['B' 'b'] { LOCALSYMBEFORE (int_of_digit i)  }
   | (digits as i) ['F' 'f'] { LOCALSYMFORWARD (int_of_digit i) }
-  | (letters|digits)+ as s {
+  | (letters|digits|'_')+ as s {
       let s' = String.lowercase_ascii s in
       if StringSet.mem s' ass_keywords then ASSOP s'
       else if StringSet.mem s' mix_keywords then MIXOP s'
