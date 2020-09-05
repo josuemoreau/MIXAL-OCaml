@@ -19,6 +19,7 @@ let to_int c =
   | ';'  -> 53
   | ':'  -> 54
   | '\'' -> 55
+  | '!'  -> 56
   | _    ->
     let n = int_of_char c in
     if int_of_char 'a' <= n && n <= int_of_char 'i' then
@@ -51,6 +52,7 @@ let of_int n =
   | 53 -> ';'
   | 54 -> ':'
   | 55 -> '\''
+  | 56 -> '!'
   | _  ->
     if 1 <= n && n <= 9 then
       char_of_int (int_of_char 'a' + n - 1)
