@@ -30,6 +30,7 @@ clean:
 	rm -f lexer.ml parser.mli parser.ml
 	rm -f $(EXEC)
 	rm -f .depend
+	rm -f *.automaton *.conflicts
 
 .depend: parser.mli parser.ml lexer.ml
 	ocamldep *.mli *.ml > .depend
