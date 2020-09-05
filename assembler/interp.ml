@@ -146,8 +146,7 @@ let pp_indicators f mach =
 
 let exec mach =
   try
-    for i = 1 to 100000 do
-      (* while true do *)
+    while true do
       (* if !step then ignore (read_line ()); *)
       exec_instr mach;
       (* printf "%a@." pp_registers mach;

@@ -21,7 +21,7 @@ let input mach device m =
   let set i n =
     let word_id = i / 5 in
     let byte_id = i mod 5 in
-    set_byte mach.memory.(m + word_id) (byte_id + 1) n in
+    set_byte (mem mach (m + word_id)) (byte_id + 1) n in
   for i = 0 to min (String.length lline - 1) (5 * block_size device - 1) do
     set i (Char.to_int lline.[i])
   done;
