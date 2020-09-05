@@ -7,7 +7,6 @@
 %token <int> LOCALSYMBEFORE
 %token <int> LOCALSYMFORWARD
 %token <int> INT
-%token ASTERISK
 %token EQUAL COMMA EINSTR EOF
 %start <Ast.ast> main
 %%
@@ -76,5 +75,5 @@ aexpr:
 | i = INT              { Ast.ENum i         }
 | sym = LOCALSYMBEFORE { Ast.ELocalSymB sym }
 | sym = IDENT          { Ast.ESym sym       }
-| ASTERISK             { Ast.EAsterisk      }
+| MUL                  { Ast.EAsterisk      }
 ;
