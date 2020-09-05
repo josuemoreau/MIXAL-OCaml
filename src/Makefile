@@ -29,6 +29,7 @@ clean:
 	rm -f *.cmi
 	rm -f lexer.ml parser.mli parser.ml
 	rm -f $(EXEC)
+	rm -f .depend
 
 .depend: parser.mli parser.ml lexer.ml
 	ocamldep *.mli *.ml > .depend
