@@ -53,6 +53,8 @@ val dec_rA : machine -> int -> unit
 val dec_rI : machine -> int -> int -> unit
 val dec_rX : machine -> int -> unit
 
+val move : machine -> int -> int -> unit
+
 val is_z : word -> bool
 val is_p : word -> bool
 val is_n : word -> bool

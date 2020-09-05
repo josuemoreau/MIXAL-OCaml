@@ -78,6 +78,7 @@ let exec_instr mach =
           | 5 -> src mach m
           | _ -> invalid_fspec f
         end
+      | 7  -> move mach m f
       | 8  -> ld_rA mach m f
       | 15 -> ld_rX mach m f
       | 16 -> ldn_rA mach m f

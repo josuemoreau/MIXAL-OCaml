@@ -160,6 +160,13 @@ let dec_rA mach m = inc_rA mach (-m)
 let dec_rI mach i m = inc_rI mach i (-m)
 let dec_rX mach m = inc mach.rX (-m)
 
+let move mach m f =
+  let dest = get_int_rI mach 1 in
+  for i = 0 to f do
+    set_sub_f mach.memory.(dest + i) mach.memory.(m + i) 5
+  done;
+  inc_rI mach 1 f
+
 let is_z src = to_int src = 0
 let is_p src = to_int src > 0
 let is_n src = to_int src < 0
