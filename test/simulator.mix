@@ -1,4 +1,4 @@
-* MIX SIMULATOR
+** MIX SIMULATOR
       ORIG 3500
 BEGIN STZ TIME(0:2)
       STZ OVTOG
@@ -122,7 +122,7 @@ INST    CON 0
 COMPI   CON 0
 OVTOG   CON 0
 CLOCK   CON 0
-* SUBROUTINES
+** SUBROUTINES
 MEMORY  STJ 9F
         J5N MEMERROR
         CMP5 =BEGIN=
@@ -132,15 +132,67 @@ MEMORY  STJ 9F
         SRAX 5
         LDA 0,5(1:5)
 9H      JMP *
-FCHECK  STJ 9F
+FCHECK  STA 9F
         ENTA 0
         ENTX 0,3
         DIV =8=
         CMPX =5=
         JG FERROR
-        SRX R
+        STX R
         STA L
         LD1 L
         CMPA R
 9H      JLE *
         JMP FERROR
+GETAV   STJ 9F
+        JMP 1F
+GETV    STJ 9F
+        JMP FCHECK
+        JMP MEMORY
+1H      J1Z 2F
+        ENTX 1
+        SLA -1,1
+        SRA -1,1
+2H      LD2N R
+        SRA 5,2
+9H      JMP *
+** INDIVIDUAL OPERATORS
+_ADD    JMP GETV
+        ENT1 0
+        JMP INC
+_SUB    JMP GETV
+        ENT1 0
+        JMP DEC
+**
+_MUL    JMP GETV
+        CMPX SIGNA
+        ENTX 1
+        JE *+2
+        ENNX 1
+        STX SIGNA
+        STX SIGNX
+        MUL AREG
+        JMP STOREAX
+**
+_DIV    LDA SIGNA
+        STA SIGNX
+        JMP GETV
+        CMPX SIGNA
+        ENTX 1
+        JE *+2
+        ENNX 1
+        STX SIGNA
+        STA TEMP
+        LDA AREG
+        LDX XREG
+        DIV TEMP
+STOREAX STA AREG
+        STX XREG
+OVCHECK JNOV CYCLE
+        ENTX 1
+        STX OVTOG
+        JMP CYCLE
+**
+_LOADN  JMP GETV
+        ENT1 47,4
+_LOADN1 
