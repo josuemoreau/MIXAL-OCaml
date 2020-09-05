@@ -1,4 +1,4 @@
-EXEC := assembler
+EXEC := mixint
 
 OBJ := op.cmx ast.cmx parser.cmx lexer.cmx word.cmx char.cmx memory.cmx \
 			machine.cmx io.cmx interp.cmx instr.cmx main.cmx
