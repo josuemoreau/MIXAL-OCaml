@@ -124,6 +124,12 @@ let set_sub_shift_f w1 w2 f =
   let l, r = f / 8, f mod 8 in
   set_sub_shift w1 w2 l r
 
+let set_sub_shift_bis2_f w1 w2 f =
+  for i = 0 to 2 do
+    w2.bytes.(i) <- 0
+  done;
+  set_sub_shift_bis_f w1 w2 f
+
 let to_int word =
   let rec aux i =
     if i = 1 then get_byte word 1

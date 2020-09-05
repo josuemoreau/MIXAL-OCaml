@@ -63,7 +63,7 @@ let exec_instr mach =
       | 4  -> div mach m f
       | 5  ->
         begin match f with
-          | 0 -> ()
+          | 0 -> num mach
           | 1 -> char mach
           | 2 -> raise End
           | _ -> invalid_fspec f
@@ -84,8 +84,13 @@ let exec_instr mach =
       | 23 -> ldn_rX mach m f
       | 24 -> st_rA mach m f
       | 31 -> st_rX mach m f
+      | 32 -> st_rJ mach m f
+      | 33 -> st_z mach m f
+      | 34 -> if is_busy f then next_loc := m
       | 35 -> ioc mach f m
+      | 36 -> input mach f m
       | 37 -> out mach f m
+      | 38 -> if not (is_busy f) then next_loc := m
       | 39 ->
         begin match f with
           | 0 -> next_loc := jmp mach m

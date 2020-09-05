@@ -30,7 +30,7 @@ let to_int c =
     else if int_of_char '0' <= n && n <= int_of_char '9' then
       30 + (n - int_of_char '0')
     else
-      failwith "Caractère inconnu."
+      failwith ("Caractère inconnu : " ^ String.make 1 c)
 
 let of_int n =
   match n with
@@ -61,4 +61,4 @@ let of_int n =
     else if 30 <= n && n <= 39 then
       char_of_int (int_of_char '0' + n - 30)
     else
-      failwith "Code de caractère inconnu."
+      failwith ("Code de caractère inconnu : " ^ string_of_int n)

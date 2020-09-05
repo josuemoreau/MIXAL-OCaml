@@ -96,6 +96,16 @@ let char mach =
     n := !n / 10
   done
 
+let num mach =
+  let n = ref 0 in
+  for i = 1 to 5 do
+    n := !n * 10 + get_byte mach.rA i - 30
+  done;
+  for i = 1 to 5 do
+    n := !n * 10 + get_byte mach.rX i - 30
+  done;
+  set_word_part 0 mach.rA !n 5
+
 let ld_rA mach m f = set_sub_shift_f mach.rA mach.memory.(m) f
 let ld_rI mach i m f = set_sub_shift_f (get_rI mach i) mach.memory.(m) f
 let ld_rX mach m f = set_sub_shift_f mach.rX mach.memory.(m) f
@@ -111,9 +121,13 @@ let ldn_rI mach i m f =
   let sign = get_sign mach.memory.(m) in
   set_sign (get_rI mach i) (not sign)
 
-let st_rA mach m f = set_sub_f mach.memory.(m) mach.rA f
-let st_rI mach i m f = set_sub2_f mach.memory.(m) (get_rI mach i) f
+let st_rA mach m f = set_sub_shift_bis_f mach.memory.(m) mach.rA f
+let st_rI mach i m f = set_sub_shift_bis2_f mach.memory.(m) (get_rI mach i) f
 let st_rX mach m f = set_sub_shift_bis_f mach.memory.(m) mach.rX f
+let st_rJ mach m f =
+  set_sign mach.memory.(m) (get_sign mach.rJ);
+  set_sub_shift_bis2_f mach.memory.(m) mach.rJ f
+let st_z mach m f = set_zero mach.memory.(m) f
 
 let ent dest sign m =
   if m = 0 then set_sign dest sign
