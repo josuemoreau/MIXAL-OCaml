@@ -37,6 +37,8 @@
     ]
 
   let int_of_digit d = int_of_char d - int_of_char '0'
+
+  let bol = ref true
 }
 
 let letters = ['a'-'z' 'A'-'Z']
@@ -46,35 +48,37 @@ let whitespaces = [' ' '\t' '\n']
 let symbols = "+"|"-"|"*"|"/"|"//"|"="|","|"("|")"|":"
 
 rule lexer = parse
-  | [' ' '\t']* "**" [^'\n']* '\n' {
-      Lexing.new_line lexbuf; lexer lexbuf
-    }
+  (* | [' ' '\t']* "**" [^'\n']* '\n' {
+   *     Lexing.new_line lexbuf; lexer lexbuf
+   *   } *)
   | whitespaces* '\n' whitespaces* {
-      Lexing.new_line lexbuf; EINSTR
+      Lexing.new_line lexbuf; bol := true; EINSTR
     }
   | whitespaces+ {
       (* tous les espaces blancs ne contenant pas de retour à la ligne *)
       lexer lexbuf
     }
-  | '+'  { PLUS  }
-  | '-'  { MINUS }
-  | '*'  { MUL   }
-  | "//" { DIVP  }
-  | '/'  { DIV   }
-  | ':'  { FSPEC }
-  | ','  { COMMA }
-  | '('  { LPAR  }
-  | ')'  { RPAR  }
-  | '='  { EQUAL }
-  | ("alf "|"ALF ") ([^'\n']* as s) { ALFOP s }
+  | '+'  { bol := false; PLUS  }
+  | '-'  { bol := false; MINUS }
+  | '*'  { if !bol then comment lexbuf else begin bol := false; MUL end }
+  | "//" { bol := false; DIVP  }
+  | '/'  { bol := false; DIV   }
+  | ':'  { bol := false; FSPEC }
+  | ','  { bol := false; COMMA }
+  | '('  { bol := false; LPAR  }
+  | ')'  { bol := false; RPAR  }
+  | '='  { bol := false; EQUAL }
+  | ("alf "|"ALF ") ([^'\n']* as s) { bol := false; ALFOP s }
   | number as n   {
+      bol := false;
       let nb = int_of_string n in
       INT nb
     }
-  | (digits as i) ['H' 'h'] { LOCALSYMDEF (int_of_digit i)     }
-  | (digits as i) ['B' 'b'] { LOCALSYMBEFORE (int_of_digit i)  }
-  | (digits as i) ['F' 'f'] { LOCALSYMFORWARD (int_of_digit i) }
+  | (digits as i) ['H' 'h'] { bol := false; LOCALSYMDEF (int_of_digit i)     }
+  | (digits as i) ['B' 'b'] { bol := false; LOCALSYMBEFORE (int_of_digit i)  }
+  | (digits as i) ['F' 'f'] { bol := false; LOCALSYMFORWARD (int_of_digit i) }
   | (letters|digits|'_')+ as s {
+      bol := false;
       let s' = String.lowercase_ascii s in
       if StringSet.mem s' ass_keywords then ASSOP s'
       else if StringSet.mem s' mix_keywords then MIXOP s'
@@ -82,6 +86,9 @@ rule lexer = parse
     }
   | eof { EOF }
   | _ { failwith "lexical error" }
+and comment = parse
+  | "\n" { Lexing.new_line lexbuf; lexer lexbuf }
+  | _    { comment lexbuf }
 {
 
 }
