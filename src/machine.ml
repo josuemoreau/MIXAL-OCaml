@@ -62,6 +62,26 @@ let of_file s =
   let s' = String.sub s 2 (String.length s - 2) in
   init (l1 * 64 + l2) (Memory.of_file s')
 
+let write_file mach filename =
+  let oc = open_out filename in
+  fprintf (formatter_of_out_channel oc) "%s" (to_file mach);
+  close_out oc
+
+let read_file filename =
+  let ic = open_in filename in
+  let s = ref "" in
+  begin
+    try
+      while true do
+        let line = input_line ic in
+        s := !s ^ line;
+      done
+    with
+    | End_of_file ->
+      close_in ic
+  end;
+  of_file !s
+
 
 (****************************************************************************)
 (*                                                                          *)
