@@ -269,6 +269,7 @@ let () =
     printf "MEMORY AFTER LOADING PROGRAM :\n%a@." Memory.pp_memory mem;
     printf "STARTING LOCATION : %d@." start_loc;
     let mach = Machine.init start_loc mem in
+    Machine.write_file mach "test.mixex";
     exec mach
   end else
     failwith "Argument non fourni"
