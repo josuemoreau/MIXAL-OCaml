@@ -46,6 +46,29 @@ let get_int_rA mach = to_int mach.rA
 let get_int_rI mach i = get_word_part mach.rI.(i - 1) 5
 let get_int_rX mach = to_int mach.rX
 
+let string_of_char = String.make 1
+
+let to_file mach =
+  (* 0 <= loc_pointer <= 3999 donc loge sur deux octets *)
+  let l1 = mach.loc_pointer / 256 in
+  let l2 = mach.loc_pointer mod 256 in
+  string_of_char (char_of_int l1) ^
+  string_of_char (char_of_int l2) ^
+  Memory.to_file mach.memory
+
+let of_file s =
+  let l1 = int_of_char s.[0] in
+  let l2 = int_of_char s.[1] in
+  let s' = String.sub s 2 (String.length s - 2) in
+  init (l1 * 64 + l2) (Memory.of_file s')
+
+
+(****************************************************************************)
+(*                                                                          *)
+(*                     IMPLEMENTATION DES OPERATIONS                        *)
+(*                                                                          *)
+(****************************************************************************)
+
 let add mach m f =
   let v1 = get_word_part mach.rA 5 in
   let v2 = get_word_part mach.memory.(m) f in

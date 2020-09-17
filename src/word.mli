@@ -35,3 +35,6 @@ val get_word_part : word -> int -> int
 val get_word_part2 : word -> int -> int
 
 val is_null : word -> bool
+
+val to_file_format : word -> string
+val of_file_format : word -> string -> unit

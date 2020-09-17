@@ -15,6 +15,9 @@ val get_int_rA : machine -> int
 val get_int_rI : machine -> int -> int
 val get_int_rX : machine -> int
 
+val to_file : machine -> string
+val of_file : string -> machine
+
 val add : machine -> int -> int -> unit
 val sub : machine -> int -> int -> unit
 val mul : machine -> int -> int -> unit

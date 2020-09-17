@@ -185,3 +185,24 @@ let is_null w = w.sign && to_int w = 0
  *       r := 0
  *     end
  *   done *)
+
+let string_of_char = String.make 1
+
+(* Renvoie une chaîne de caractères correspondant au contenu du mot *)
+let to_file_format w =
+  let s = ref "" in
+  if w.sign then s := !s ^ string_of_char (char_of_int 1)
+  else s := !s ^ string_of_char (char_of_int 2);
+  for i = 1 to 5 do
+    let c = char_of_int (get_byte w i) in
+    s := !s ^ string_of_char c
+  done;
+  !s
+
+(* La chaîne de caractères fournie doit faire au mois 6 caractères de long *)
+(* Renvoie un nouveau mot rempli avec la chaîne de caractères *)
+let of_file_format w s =
+  set_sign w (int_of_char s.[0] = 1);
+  for i = 1 to 5 do
+    set_byte w i (int_of_char s.[i])
+  done
