@@ -133,7 +133,8 @@ let exec_instr mach =
 let exec mach =
   try
     while true do
-      (* if !step then ignore (read_line ()); *)
+      (* if !step then *)
+        (* ignore (read_line ()); *)
       exec_instr mach;
       (* printf "%a@." pp_registers mach;
        * printf "%a@." pp_indicators mach;
@@ -143,5 +144,5 @@ let exec mach =
   with
   | End ->
     (* printf "%a@." Memory.pp_memory mach.memory; *)
-    printf "END OF PROGRAM"
+    printf "END OF PROGRAM\n"
   | Overflow -> printf "%a@." Machine.pp_memory mach

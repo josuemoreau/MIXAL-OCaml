@@ -29,7 +29,15 @@ let input mach device m =
 
 let pp_device_block f (mach, device, m) =
   let bs = block_size device in
+  let empi = ref 0 in
   for i = 0 to bs - 1 do
+    let w = Machine.mem mach (m + i) in
+    for j = 1 to 5 do
+      if get_byte w j <> 0 then
+        empi := i
+    done
+  done;
+  for i = 0 to min !empi (bs - 1) do
     let w = Machine.mem mach (m + i) in
     for j = 1 to 5 do
       fprintf f "%c" (Char.of_int (get_byte w j))

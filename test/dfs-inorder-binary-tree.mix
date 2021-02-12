@@ -1,0 +1,117 @@
+* PROGRAM FROM THE ART OF COMPUTER PROGRAMMING
+* BOOK 1   - FUNDAMENTAL ALGORITHMS
+* PAGE 325 - PROGRAM T
+*
+*
+* BINARY TREE EXAMPLE
+*
+ORIG  1500
+** HEAD
+CON   1502(1:2)
+con   1500(1:2)
+** NODE A
+CON   1504(1:2),1(3:5)
+CON   1506(1:2),0(3:5)
+** NODE B
+CON   1508(1:2),2(3:5)
+CON   0(1:2),0(3:5)
+** NODE C
+CON   1510(1:2),3(3:5)
+CON   1512(1:2),0(3:5)
+** NODE D
+CON   0(1:2),4(3:5)
+CON   0(1:2),0(3:5)
+** NODE E
+CON   0(1:2),5(3:5)
+CON   1514(1:2),0(3:5)
+** NODE F
+CON   1516(1:2),6(3:5)
+CON   1518(1:2),0(3:5)
+** NODE G
+CON   0(1:2),7(3:5)
+CON   0(1:2),0(3:5)
+** NODE H
+CON   0(1:2),8(3:5)
+CON   0(1:2),0(3:5)
+** NODE J
+CON   1520(1:2),11(3:5)
+CON   0(1:2),0(3:5)
+
+ORIG 500
+* A    : STACK ADDRESS
+*
+A    EQU 0
+
+* MAX  : MAX STACK SIZE
+*
+MAX  EQU 1000
+
+* HEAD : HEAD OF THE TREE
+*
+HEAD EQU 1500
+
+* PRINTER
+*
+PRINTER EQU 18
+BUF0    EQU 2000
+BUF1    EQU BUF0+25
+
+* PROGRAM T
+*
+      ORIG  3000
+LLINK EQU   1:2
+RLINK EQU   1:2
+      ORIG  3002
+START IOC   0(PRINTER)
+      OUT   TITLE(PRINTER)
+      ENT1  0
+T1    LD5   HEAD(LLINK)
+T2A   J5Z   DONE
+      ENT6  0
+T3    DEC6  MAX
+      J6NN  OVERFLOW
+      INC6  MAX+1
+      ST5   A,6
+      LD5   0,5(LLINK)
+T2B   J5NZ  T3
+T4    LD5   A,6
+      DEC6  1
+T5    JMP   VISIT
+      LD5   1,5(RLINK)
+T2C   J5NZ  T3
+      J6NZ  T4
+CLEARBUF    J1Z DONE
+            OUT BUF0(PRINTER)
+DONE        HLT
+
+ORIG 3700
+OVERFLOW OUT STOV(PRINTER)
+         HLT
+ORIG 3720
+VISIT STJ   VEXIT
+      LDA   0,5(0:5)
+      SLA   4
+      STA   BUF0,1(0:5)
+      INC1  1
+      DEC1  24
+      J1N   2F
+      INC1  24
+      OUT   BUF0(PRINTER)
+      ENTA  0
+4H    DEC1  1
+      STA   BUF0,1(0:5)
+      J1NZ  4B
+      JMP   VEXIT
+2H    INC1  24
+VEXIT JMP   *
+
+ORIG 3500
+TITLE ALF DFS I
+      ALF NORDE
+      ALF R    
+ORIG 3524
+STOV  ALF STACK
+      ALF OVERF
+      ALF LOW  
+
+      END   START
